@@ -1,0 +1,22 @@
+[
+  {
+    "message": "hola",
+    "response": "hola legta!",
+    "type": "text-reply"
+  },
+  {
+    "message": "legtoid",
+    "response": "🔥",
+    "type": "emoji"
+  },
+  {
+    "message": "aea",
+    "response": "aea",
+    "type": "text-reply"
+  },
+  {
+    "message": "swa",
+    "response": "midger",
+    "type": "text-reply"
+  }
+]
