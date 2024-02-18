@@ -62,8 +62,10 @@ try {
 } );
 
 client.on('messageCreate', (interaction) => {
-	if (interaction.content.toLowerCase().startsWith('.say ', 0) && !interaction.author.bot) {
+	if (interaction.content.toLowerCase().startsWith('.say ', 0) && !interaction.author.bot) { //if message starts with '.say' it sends whatever the content of the message is and deletes the original .say message by the user
 		interaction.channel.send(interaction.content.replace(/.say/gi, ''));
+		console.log(`Sent "${interaction.content.replace(/.say/gi, '')}" by ${interaction.author.globalName} to #${interaction.channel.name} in ${interaction.guild.name}`);
+		interaction.delete();
 		return;
 	}
 	if (fs.existsSync(path.join(__dirname, 'guild-data', interaction.guild.id, 'responses.json'))) {
