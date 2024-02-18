@@ -1,8 +1,6 @@
-const { SlashCommandBuilder, parseEmoji } = require('discord.js');
+const { SlashCommandBuilder } = require('discord.js');
 const path = require('path');
 const fs = require('node:fs');
-const { type } = require('os');
-
 
 module.exports = {
     data: new SlashCommandBuilder()

@@ -62,6 +62,10 @@ try {
 } );
 
 client.on('messageCreate', (interaction) => {
+	if (interaction.content.toLowerCase().startsWith('.say ', 0) && !interaction.author.bot) {
+		interaction.channel.send(interaction.content.replace(/.say/gi, ''));
+		return;
+	}
 	if (fs.existsSync(path.join(__dirname, 'guild-data', interaction.guild.id, 'responses.json'))) {
 		const readData = JSON.parse(fs.readFileSync(path.join(__dirname, 'guild-data', interaction.guild.id, 'responses.json')));
 		const matchIndexes = [];
