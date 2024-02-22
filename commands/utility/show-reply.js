@@ -1,4 +1,4 @@
-const {SlashCommandBuilder, EmbedBuilder} = require('discord.js');
+const {SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder} = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -26,12 +26,24 @@ module.exports = {
                 )
                 // interaction.reply({embeds: [replyEmbed]});
             }
+            const editButton = new ButtonBuilder()
+            .setCustomId('edit')
+            .setLabel('Edit')
+            .setStyle(ButtonStyle.Primary);
+    
+            const removeButton = new ButtonBuilder()
+            .setCustomId('delete')
+            .setLabel('Remove reaction')
+            .setStyle(ButtonStyle.Danger);
+    
+            const row = new ActionRowBuilder()
+            .addComponents(editButton, removeButton);
+    
+    
+            interaction.reply({embeds: [replyEmbed], components: [row]});
         }
         
 
-
-
-        interaction.reply({embeds: [replyEmbed]});
     }
 }
 
