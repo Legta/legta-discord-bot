@@ -62,7 +62,8 @@ try {
 } );
 
 client.on('messageCreate', (interaction) => {
-	if (interaction.content.toLowerCase().startsWith('.say ', 0) && !interaction.author.bot) { //if message starts with '.say' it sends whatever the content of the message is and deletes the original .say message by the user
+	if (interaction.author.bot) return;
+	if (interaction.content.toLowerCase().startsWith('.say ', 0)) { //if message starts with '.say' it sends whatever the content of the message is and deletes the original .say message by the user
 		interaction.channel.send(interaction.content.replace(/.say/gi, ''));
 		console.log(`Sent "${interaction.content.replace(/.say/gi, '')}" by ${interaction.author.globalName} to #${interaction.channel.name} in ${interaction.guild.name}`);
 		interaction.delete();
@@ -77,7 +78,7 @@ client.on('messageCreate', (interaction) => {
 			}
 		} )
 		for (let i=0;i<matchIndexes.length;i++) {
-			if (readData[matchIndexes[i]].type === 'emoji' && !interaction.author.bot) {
+			if (readData[matchIndexes[i]].type === 'emoji') {
 				interaction.react(readData[matchIndexes[i]].response)
 			} else if (readData[matchIndexes[i]].type === 'text-reply' && !interaction.author.bot ) {
 				interaction.reply(readData[matchIndexes[i]].response)
