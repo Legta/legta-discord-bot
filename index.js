@@ -40,25 +40,22 @@ for (const folder of commandFolders) {  //for loop to get the filepath of the co
 }
 
 client.on(Events.InteractionCreate, async interaction => { //using .on() method as listener for the interaction. The interaction is "Events.InteractionCreate" then execute the specified function
-	if (!interaction.isChatInputCommand()) { //if statement to check if the interaction received by the bot is a slash command. If it is not, just exit the function
-		return;
+	if (interaction.isChatInputCommand()) { //if statement to check if the interaction received by the bot is a slash command. If it is not, just exit the function
+		const command = interaction.client.commands.get(interaction.commandName); //this finds the command that was inputted by the user. "interaction.client" lets you use the Client instance. .commands is the collection created earlier which holds the commands. .get() is a method provided by the Collections imported class used to find the command. We pass the interaction.commandName property to this method to find the command name https://discordjs.guide/creating-your-bot/command-handling.html#executing-commands
+		if (!command) /* falsy condition, if the command provided is not in the client.commands collection it will be falsy and execute this block. */ {
+			console.log(`${command} was not found in the commands collection`);
+		}
+		try {
+			await command.execute(interaction); 
+		} catch (error) {
+			console.error(error);
+			if (interaction.replied || interaction.deferred) {
+				await interaction.followUp({content: "There was an error while executing this command.", ephemeral: true,})
+			} else {
+				await interaction.reply({content: "There was an error while executing this command.", ephemeral: true,})
+			}
+		}
 	}
-
-	const command = interaction.client.commands.get(interaction.commandName); //this finds the command that was inputted by the user. "interaction.client" lets you use the Client instance. .commands is the collection created earlier which holds the commands. .get() is a method provided by the Collections imported class used to find the command. We pass the interaction.commandName property to this method to find the command name https://discordjs.guide/creating-your-bot/command-handling.html#executing-commands
-
-	if (!command) /* falsy condition, if the command provided is not in the client.commands collection it will be falsy and execute this block. */ {
-		console.log(`${command} was not found in the commands collection`);
-	}
-try {
-	await command.execute(interaction); 
-} catch (error) {
-	console.error(error);
-	if (interaction.replied || interaction.deferred) {
-		await interaction.followUp({content: "There was an error while executing this command.", ephemeral: true,})
-	} else {
-		await interaction.reply({content: "There was an error while executing this command.", ephemeral: true,})
-	}
-}
 } );
 
 client.on('messageCreate', (interaction) => {
@@ -87,54 +84,54 @@ client.on('messageCreate', (interaction) => {
 	}
 })
 
-let previousAvatar;
-let intervalId;
+// let previousAvatar;
+// let intervalId;
 
-const avatarInterval = () => {
-	intervalId = setInterval(randomAvatarCycling, 600000);
-}
+// const avatarInterval = () => {
+// 	intervalId = setInterval(randomAvatarCycling, 600000);
+// }
 
-function randomAvatarCycling() { //chooses an avatar from the folder at random and updates it
+// function randomAvatarCycling() { //chooses an avatar from the folder at random and updates it
 		
-	new Promise((resolve, reject) => {
-		const avatarsPath = path.join(__dirname, '\\avatars\\');
-		const avatarFiles = fs.readdirSync(avatarsPath);
-		const avatarFilenames= [];
-		for (avatar in avatarFiles) {
-			const filePath = avatarsPath + avatarFiles[avatar];
-			avatarFilenames.push(filePath)
-		}
+// 	new Promise((resolve, reject) => {
+// 		const avatarsPath = path.join(__dirname, '\\avatars\\');
+// 		const avatarFiles = fs.readdirSync(avatarsPath);
+// 		const avatarFilenames= [];
+// 		for (avatar in avatarFiles) {
+// 			const filePath = avatarsPath + avatarFiles[avatar];
+// 			avatarFilenames.push(filePath)
+// 		}
 
-		const randomAvatar = avatarFilenames[Math.floor(Math.random() * avatarFilenames.length)];
+// 		const randomAvatar = avatarFilenames[Math.floor(Math.random() * avatarFilenames.length)];
 
-		// console.log(`previousAvatar value before this cycle if = ${previousAvatar}`);
-		if (previousAvatar !== randomAvatar) {
-			client.user.setAvatar(randomAvatar)
-			.then(() => resolve())
-			.catch((error) => {
-				if (error.code === 50035) {
-					console.error(`Rate limit exceeded, retrying in 10 minutes... \nError code: ${error.code}`);
-					clearInterval(intervalId);
-					setTimeout(() => {
-						avatarInterval();
-					}, 600000);
-					resolve();
-				} else {
-				console.error(error);
-				console.error(`Error code: ${error.code}`);
-				reject();
-				}
-			});
-			console.log(`Previous avatar: ${previousAvatar}`);
-			previousAvatar = randomAvatar;
-			console.log(`Avatar updated to ${randomAvatar}`);
-		} else if (previousAvatar === randomAvatar) {
-			console.log(`Not changing avatar, random was same as previous.\nChosen Avatar: ${randomAvatar}`);
-		}
-	})
-}
+// 		// console.log(`previousAvatar value before this cycle if = ${previousAvatar}`);
+// 		if (previousAvatar !== randomAvatar) {
+// 			client.user.setAvatar(randomAvatar)
+// 			.then(() => resolve())
+// 			.catch((error) => {
+// 				if (error.code === 50035) {
+// 					console.error(`Rate limit exceeded, retrying in 10 minutes... \nError code: ${error.code}`);
+// 					clearInterval(intervalId);
+// 					setTimeout(() => {
+// 						avatarInterval();
+// 					}, 600000);
+// 					resolve();
+// 				} else {
+// 				console.error(error);
+// 				console.error(`Error code: ${error.code}`);
+// 				reject();
+// 				}
+// 			});
+// 			console.log(`Previous avatar: ${previousAvatar}`);
+// 			previousAvatar = randomAvatar;
+// 			console.log(`Avatar updated to ${randomAvatar}`);
+// 		} else if (previousAvatar === randomAvatar) {
+// 			console.log(`Not changing avatar, random was same as previous.\nChosen Avatar: ${randomAvatar}`);
+// 		}
+// 	})
+// }
 
-avatarInterval();
+// avatarInterval();
 
 
 
