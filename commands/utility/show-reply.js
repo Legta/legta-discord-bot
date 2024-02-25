@@ -1,4 +1,4 @@
-const {SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder} = require('discord.js');
+const {SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType} = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -20,11 +20,10 @@ module.exports = {
 
         if (checkIfJSONExists(interaction)) {
             const JSONdata = readJSON(interaction);
-            for (let i=0;i<JSONdata.length;i++) {
+            for (let i=0;i<JSONdata.length;i++) { //adds a field to the embed for every entry in the JSON
                 replyEmbed.addFields(
                     { name: `Message: "${JSONdata[i].message}"`, value: `Reaction: "${JSONdata[i].response}"`}
                 )
-                // interaction.reply({embeds: [replyEmbed]});
             }
             const editButton = new ButtonBuilder()
             .setCustomId('edit')
@@ -39,11 +38,30 @@ module.exports = {
             const row = new ActionRowBuilder()
             .addComponents(editButton, removeButton);
     
-    
-            interaction.reply({embeds: [replyEmbed], components: [row]});
-        }
-        
+            
+            const response = await interaction.reply({embeds: [replyEmbed], components: [row]});
 
+            const filter = (i) => i.user.id === interaction.user.id;
+
+            try { //every single interaction has to be awaited here including the response variable above because who the fuck knows. NEXT DAY UPDATE: Followed this video https://www.youtube.com/watch?v=fZ6thE4YMes and apparently it works if just the cololector is awaited
+                const collector = await response.createMessageComponentCollector({filter, componentType: ComponentType.Button, time:60_000})
+
+                collector.on('collect', i => {
+                    if (i.customId==='edit') {
+                        i.update({content:'You chose edit and the embed and buttons have been removed', components: [], embeds: []})
+                    }
+                    
+                    if (i.customId==='delete') {
+                        i.update({content:'You chose delete and the embed has changed', embeds: [new EmbedBuilder().setTitle('TESTING').addFields({name: 'Coño', value: 'Verga'})]})
+                    }
+                })
+            } catch (error) {
+                console.log(error)
+                await interaction.editReply('a la verga')
+            }
+
+
+        }
     }
 }
 
