@@ -1,4 +1,4 @@
-const {SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType} = require('discord.js');
+const {SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder} = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -18,49 +18,69 @@ module.exports = {
         .setAuthor({name: interaction.user.globalName, iconURL: interaction.user.avatarURL()})
         .setFooter({text: 'Anita Max Wynn', iconURL: interaction.client.user.avatarURL()});
 
-        if (checkIfJSONExists(interaction)) {
+        if (checkIfJSONExists(interaction)) { //checks if the file exists before anything else
             const JSONdata = readJSON(interaction);
-            for (let i=0;i<JSONdata.length;i++) { //adds a field to the embed for every entry in the JSON
+
+            for (let i = 0; i < JSONdata.length; i++) {
                 replyEmbed.addFields(
-                    { name: `Message: "${JSONdata[i].message}"`, value: `Reaction: "${JSONdata[i].response}"`}
+                    { name: `Message: "${JSONdata[i].message}"`, value: `Reaction: "${JSONdata[i].response}"\nType: ${JSONdata[i].type==='text-reply' ? 'Text':'Emoji'}`}
                 )
             }
-            const editButton = new ButtonBuilder()
-            .setCustomId('edit')
-            .setLabel('Edit')
-            .setStyle(ButtonStyle.Primary);
-    
-            const removeButton = new ButtonBuilder()
-            .setCustomId('delete')
-            .setLabel('Remove reaction')
-            .setStyle(ButtonStyle.Danger);
-    
-            const row = new ActionRowBuilder()
-            .addComponents(editButton, removeButton);
-    
-            
-            const response = await interaction.reply({embeds: [replyEmbed], components: [row]});
+
+            const row = new ActionRowBuilder();
+            const selectionMenu = new StringSelectMenuBuilder() //initializes the select menu
+            .setCustomId('reactions')
+            .setPlaceholder('Select a reaction to see more options');
+
+            for (let i = 0; i < JSONdata.length; i++) { //adds an option to the menu for each json item
+                selectionMenu.addOptions(
+                    new StringSelectMenuOptionBuilder()
+                    .setLabel(JSONdata[i].message)
+                    .setDescription(JSONdata[i].response)
+                    .setValue(`${i}`)
+                )
+            }
+
+            row.addComponents(selectionMenu);
+            const response = await interaction.reply({embeds: [replyEmbed], components: [row]}); //replies to the command with the embed and action row which contains the string selector
 
             const filter = (i) => i.user.id === interaction.user.id;
 
             try { //every single interaction has to be awaited here including the response variable above because who the fuck knows. NEXT DAY UPDATE: Followed this video https://www.youtube.com/watch?v=fZ6thE4YMes and apparently it works if just the cololector is awaited
-                const collector = await response.createMessageComponentCollector({filter, componentType: ComponentType.Button, time:60_000})
-
-                collector.on('collect', i => {
-                    if (i.customId==='edit') {
-                        i.update({content:'You chose edit and the embed and buttons have been removed', components: [], embeds: []})
-                    }
+                const collector = await response.createMessageComponentCollector({filter, componentType: ComponentType.StringSelect, time:60_000})
+                collector.on('collect', async i => {
+                    const editButton = new ButtonBuilder()
+                    .setCustomId('edit')
+                    .setLabel(`Edit "${JSONdata[i.values].message}"`)
+                    .setStyle(ButtonStyle.Primary);
                     
-                    if (i.customId==='delete') {
-                        i.update({content:'You chose delete and the embed has changed', embeds: [new EmbedBuilder().setTitle('TESTING').addFields({name: 'Coño', value: 'Verga'})]})
-                    }
+                    const removeButton = new ButtonBuilder()
+                    .setCustomId('delete')
+                    .setLabel(`Remove "${JSONdata[i.values].message}"`)
+                    .setStyle(ButtonStyle.Danger);
+                    
+                    const rowButtons = new ActionRowBuilder().addComponents(editButton, removeButton);
+
+                    await i.update({embeds:[replyEmbed], components: [rowButtons]});
                 })
+                    const collectorButtons = await response.createMessageComponentCollector({filter, componentType: ComponentType.Button, time:60_000})
+
+                    collectorButtons.on('collect', async interactionFromButton => {
+                        console.log(interactionFromButton)
+                        if (interactionFromButton.customId==='edit') {
+                            await interactionFromButton.reply('Edit button')
+                        }
+                        if (interactionFromButton.customId==='delete') {
+                            await interactionFromButton.reply('Delete button')
+                        }
+                    })
+
             } catch (error) {
                 console.log(error)
-                await interaction.editReply('a la verga')
+                await i.editReply('a la verga')
             }
-
-
+        } else if (!checkIfJSONExists(interaction)) {
+            interaction.reply('There are no reactions in the server.')
         }
     }
 }
