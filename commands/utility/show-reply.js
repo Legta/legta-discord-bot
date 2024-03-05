@@ -43,7 +43,10 @@ module.exports = {
             }
 
             row.addComponents(selectionMenu); //adds the string selection menu to the row
-            const response = await interaction.reply({embeds: [replyEmbed], components: [row]}); //replies to the command with the embed and action row which contains the string selector
+            let response;
+            if (JSONdata.length > 0) {
+                response = await interaction.reply({embeds: [replyEmbed], components: [row]}); //replies to the command with the embed and action row which contains the string selector
+            } else return await interaction.reply('There are no interactions added in this server!');
             const filter = (i) => i.user.id === interaction.user.id; //filter for the collector, checks if the user who initiated the original interaction is the one interacting now
 
             try { //every single interaction has to be awaited here including the response variable above because who the fuck knows, theyre all promise based. NEXT DAY UPDATE: Followed this video https://www.youtube.com/watch?v=fZ6thE4YMes and apparently it works if just the cololector is awaited
