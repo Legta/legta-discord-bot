@@ -44,12 +44,14 @@ module.exports = {
         if (!checkIfInteractionExists(interaction, dataObject)) {
             if (typeOfInteraction === 'emoji' && reactionOrReply.match(unicodeEmojiRegex) || typeOfInteraction === 'emoji' && reactionOrReply.match(customEmojiRegex) )  {
                 if (checkIfJSONExists(interaction)) {
+                    dataObject.response = reactionOrReply.match(unicodeEmojiRegex)[0];
                     writeJSON(interaction, dataObject);
-                    interaction.reply({content:`✅ Interaction created!\nMessage to react to messages containing: ${message}\nBot will react with: "${reactionOrReply}"`, ephemeral: true});
+                    interaction.reply({content:`✅ Interaction created!\nMessage to react to messages containing: ${message}\nBot will react with: "${dataObject.response}"`, ephemeral: true});
                 }
                 else {
+                    dataObject.response = reactionOrReply.match(unicodeEmojiRegex)[0];
                     createJSON(interaction, dataObject)
-                    interaction.reply({content:`✅ Interaction created!\nBot will react to messages containing: "${message}"\nBot will react with: "${reactionOrReply}"`, ephemeral: true});
+                    interaction.reply({content:`✅ Interaction created!\nBot will react to messages containing: "${message}"\nBot will react with: "${dataObject.response}"`, ephemeral: true});
                 }
             } else if (typeOfInteraction === 'text-reply' && reactionOrReply.length > 0) {
                 if (checkIfJSONExists(interaction)) {
@@ -61,8 +63,6 @@ module.exports = {
                     interaction.reply({content:`✅ Interaction created!\nBot will reply to messages containing: "${message}"\nBot will reply with: "${reactionOrReply}"`, ephemeral: true});
                 }
             } else {
-                console.log(reactionOrReply.match(unicodeEmojiRegex))
-                console.log(dataObject)
                 interaction.reply({content:'❌ There was an error while creating the interaction. \nYou might have entered text as an emoji reaction.', ephemeral:true});
             }
         } else if (checkIfInteractionExists(interaction, dataObject)) {
