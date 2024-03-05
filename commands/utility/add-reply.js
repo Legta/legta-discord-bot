@@ -44,12 +44,12 @@ module.exports = {
         if (!checkIfInteractionExists(interaction, dataObject)) {
             if (typeOfInteraction === 'emoji' && reactionOrReply.match(unicodeEmojiRegex) || typeOfInteraction === 'emoji' && reactionOrReply.match(customEmojiRegex) )  {
                 if (checkIfJSONExists(interaction)) {
-                    dataObject.response = reactionOrReply.match(unicodeEmojiRegex)[0];
+                    dataObject.response = reactionOrReply.match(unicodeEmojiRegex)? reactionOrReply.match(unicodeEmojiRegex)[0]:reactionOrReply.match(customEmojiRegex)[0];
                     writeJSON(interaction, dataObject);
                     interaction.reply({content:`✅ Interaction created!\nMessage to react to messages containing: ${message}\nBot will react with: "${dataObject.response}"`, ephemeral: true});
                 }
                 else {
-                    dataObject.response = reactionOrReply.match(unicodeEmojiRegex)[0];
+                    dataObject.response = reactionOrReply.match(unicodeEmojiRegex)? reactionOrReply.match(unicodeEmojiRegex)[0]:reactionOrReply.match(customEmojiRegex)[0];
                     createJSON(interaction, dataObject)
                     interaction.reply({content:`✅ Interaction created!\nBot will react to messages containing: "${message}"\nBot will react with: "${dataObject.response}"`, ephemeral: true});
                 }
