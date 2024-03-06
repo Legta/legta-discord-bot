@@ -15,7 +15,7 @@ client.commands = new Collection;
 // It makes some properties non-nullable.
 client.once(Events.ClientReady, readyClient => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-	client.user.setPresence({ activities: [{name: 'Wynning! .say to make me talk', type: ActivityType.Custom }], status: 'dnd'}); //Sets the bot's activity, such as playing, watching, etc. Need to import "ActivityType" from discord.js to change the type.
+	client.user.setPresence({ activities: [{name: 'Seijing! ".say" to make me talk', type: ActivityType.Custom }], status: 'dnd'}); //Sets the bot's activity, such as playing, watching, etc. Need to import "ActivityType" from discord.js to change the type.
 });
 
 // Log in to Discord with your client's token
