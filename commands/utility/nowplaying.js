@@ -20,7 +20,7 @@ module.exports = {
                 // console.log(matchedUser.presence.activities);
                 if (matchedUser.presence.activities.length > 0) {
                     const spotifyActivityIndex = matchedUser.presence.activities.findIndex(el => el.name === 'Spotify');
-                    return interaction.reply({content:`${matchedUser.user.globalName} is listening to: ${matchedUser.presence.activities[spotifyActivityIndex].details} by ${matchedUser.presence.activities[spotifyActivityIndex].state} on album ${matchedUser.presence.activities[spotifyActivityIndex].assets.largeText} https://open.spotify.com/track/${matchedUser.presence.activities[spotifyActivityIndex].syncId}`})
+                    return interaction.reply({content:`${matchedUser.user.globalName} is listening to: \n 🎶${matchedUser.presence.activities[spotifyActivityIndex].details} by ${matchedUser.presence.activities[spotifyActivityIndex].state} on album ${matchedUser.presence.activities[spotifyActivityIndex].assets.largeText}🎶\n Check it out on Spotify: https://open.spotify.com/track/${matchedUser.presence.activities[spotifyActivityIndex].syncId}`})
                 } else return interaction.reply({content: `${matchedUser.user.globalName} is not listening to Spotify!`, ephemeral: true})
                 // interaction.reply(`<@${matchId}>`) 
             } 
@@ -28,7 +28,7 @@ module.exports = {
         }
         if (interaction.member.presence.activities.length > 0) {
             const spotifyActivityIndex = interaction.member.presence.activities.findIndex(el => el.name === 'Spotify');
-            interaction.reply({content:`Now playing: ${interaction.member.presence.activities[spotifyActivityIndex].details} by ${interaction.member.presence.activities[spotifyActivityIndex].state} on album ${interaction.member.presence.activities[spotifyActivityIndex].assets.largeText} https://open.spotify.com/track/${interaction.member.presence.activities[spotifyActivityIndex].syncId}`})
+            interaction.reply({content:`Now playing: \n🎶${interaction.member.presence.activities[spotifyActivityIndex].details} by ${interaction.member.presence.activities[spotifyActivityIndex].state} on album ${interaction.member.presence.activities[spotifyActivityIndex].assets.largeText}🎶\n Check it out on Spotify: https://open.spotify.com/track/${interaction.member.presence.activities[spotifyActivityIndex].syncId}`})
         } else interaction.reply({content: 'No Spotify song playing!', ephemeral: true})
     }
 }
