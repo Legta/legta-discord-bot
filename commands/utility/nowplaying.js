@@ -10,25 +10,28 @@ module.exports = {
         .setRequired(false)),
 
     async execute (interaction) {
-        const specifiedUser = interaction.options.getString('user')
+        const specifiedUser = interaction.options.getString('user');
+        const commandUserMember = interaction.member;
 
         if (specifiedUser) {
-            const membersList = await interaction.guild.members.fetch({query: specifiedUser});
-            const matchId = Array.from(membersList).length > 0? Array.from(membersList)[0][0] : null;
-            if (matchId) {
+            const membersList = await interaction.guild.members.fetch(); //fetches a collection of all server members
+            const filteredMembers = membersList.filter(member => !member.user.bot) //filters out bots from members collection 
+            const idAfterFilter = filteredMembers.find(member => member.user.username.toLowerCase().includes(specifiedUser) || member.user.globalName.toLowerCase().includes(specifiedUser) || (member.nickname !== null && member.nickname.toLowerCase().includes(specifiedUser))) //finds the user in the collection
+            const matchId = idAfterFilter !== undefined?  idAfterFilter.user.id : undefined
+            if (matchId !== undefined) {
                 const matchedUser = await interaction.guild.members.fetch({user: matchId});
-                // console.log(matchedUser.presence.activities);
-                if (matchedUser.presence.activities.length > 0) {
-                    const spotifyActivityIndex = matchedUser.presence.activities.findIndex(el => el.name === 'Spotify');
-                    return interaction.reply({content:`${matchedUser.user.globalName} is listening to: \n 🎶${matchedUser.presence.activities[spotifyActivityIndex].details} by ${matchedUser.presence.activities[spotifyActivityIndex].state} on album ${matchedUser.presence.activities[spotifyActivityIndex].assets.largeText}🎶\n Check it out on Spotify: https://open.spotify.com/track/${matchedUser.presence.activities[spotifyActivityIndex].syncId}`})
-                } else return interaction.reply({content: `${matchedUser.user.globalName} is not listening to Spotify!`, ephemeral: true})
-                // interaction.reply(`<@${matchId}>`) 
+                if (matchedUser.user.bot) return interaction.reply({content: `${matchedUser.user.username} is a bot!`, ephemeral: true}); //if user is a bot, return
+                if (!matchedUser.presence) return interaction.reply({content: `${matchedUser.user.globalName} is not listening to Spotify!`, ephemeral: true}); //if presence is null, return
+                if (matchedUser.presence.status === 'offline') return interaction.reply({content: `${matchedUser.user.globalName} is not listening to Spotify!`, ephemeral: true});; //if presence is offline for some reason, return
+                const spotifyActivityIndex = matchedUser.presence.activities.findIndex(el => el.name === 'Spotify');
+                return spotifyActivityIndex !== -1 ? interaction.reply({content:`${matchedUser.user.globalName} is listening to: \n 🎶${matchedUser.presence.activities[spotifyActivityIndex].details} by ${matchedUser.presence.activities[spotifyActivityIndex].state} on album ${matchedUser.presence.activities[spotifyActivityIndex].assets.largeText}🎶\n Check it out on Spotify: https://open.spotify.com/track/${matchedUser.presence.activities[spotifyActivityIndex].syncId}`}) : interaction.reply({content: `${matchedUser.user.globalName} is not listening to Spotify!`, ephemeral: true});
             } 
             else return interaction.reply({content: 'No user found', ephemeral:true});
         }
-        if (interaction.member.presence.activities.length > 0) {
-            const spotifyActivityIndex = interaction.member.presence.activities.findIndex(el => el.name === 'Spotify');
-            interaction.reply({content:`Now playing: \n🎶${interaction.member.presence.activities[spotifyActivityIndex].details} by ${interaction.member.presence.activities[spotifyActivityIndex].state} on album ${interaction.member.presence.activities[spotifyActivityIndex].assets.largeText}🎶\n Check it out on Spotify: https://open.spotify.com/track/${interaction.member.presence.activities[spotifyActivityIndex].syncId}`})
-        } else interaction.reply({content: 'No Spotify song playing!', ephemeral: true})
+        if (interaction.user.bot) return interaction.reply({content: `You are a bot, you should not be seeing this message!`, ephemeral: true}); //if user is a bot, return
+        if (!commandUserMember.presence) return interaction.reply({content: `You are offline! Can't see what you're playing`, ephemeral: true}); //if presence is null, return
+        if (commandUserMember.presence.status === 'offline') return interaction.reply({content: `You are offline! Can't see what you're playing`, ephemeral: true}); //if presence is offline for some reason, return
+        const spotifyActivityIndex = commandUserMember.presence.activities.findIndex(el => el.name === 'Spotify');
+        return spotifyActivityIndex !== -1 ? interaction.reply({content:`${commandUserMember.user.globalName} is listening to: \n 🎶${commandUserMember.presence.activities[spotifyActivityIndex].details} by ${commandUserMember.presence.activities[spotifyActivityIndex].state} on album ${commandUserMember.presence.activities[spotifyActivityIndex].assets.largeText}🎶\n Check it out on Spotify: https://open.spotify.com/track/${commandUserMember.presence.activities[spotifyActivityIndex].syncId}`}) : interaction.reply({content: `You are not listening to Spotify!`, ephemeral: true});
     }
 }
