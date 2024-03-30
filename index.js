@@ -77,8 +77,10 @@ client.on('messageCreate', (interaction) => {
 		for (let i=0;i<matchIndexes.length;i++) {
 			if (readData[matchIndexes[i]].type === 'emoji') {
 				interaction.react(readData[matchIndexes[i]].response)
+				console.log(`Reacted with ${readData[matchIndexes[i]].response} to "${interaction.content}" by ${interaction.author.globalName}`)
 			} else if (readData[matchIndexes[i]].type === 'text-reply') {
 				interaction.reply(readData[matchIndexes[i]].response)
+				console.log(`Replied with ${readData[matchIndexes[i]].response} to "${interaction.content}" by ${interaction.author.globalName}`)
 			}
 		}
 	}
