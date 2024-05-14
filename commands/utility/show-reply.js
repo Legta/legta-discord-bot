@@ -1,3 +1,4 @@
+const { time } = require('console');
 const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ModalBuilder, TextInputStyle, TextInputBuilder, Events } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
@@ -31,11 +32,12 @@ module.exports = {
             const newArray = [...JSONdata].splice(lastDisplayedIndex, 10)
             let showPageButtons = false
             let noMorePages = false
+            let firstPage = true
 
             if (JSONdata.length > 10) showPageButtons = true
 
             newArray.forEach((thing, index) => {
-                
+
                 replyEmbed.addFields(
                     { name: `Message: "${thing.message}"`, value: `Reaction: "${thing.response}"\nType: ${thing.type === 'text-reply' ? 'Text' : 'Emoji'}` }
                 )
@@ -48,11 +50,11 @@ module.exports = {
                 )
 
                 if (newArray.length < 10) noMorePages = true
+                lastDisplayedIndex = index
 
             })
 
             if (showPageButtons) {
-                // console.log(noMorePages)
 
                 const prevButton = new ButtonBuilder() //creating the buttons
                     .setCustomId('prev')
@@ -75,6 +77,83 @@ module.exports = {
                 response = await interaction.reply({ embeds: [replyEmbed], components: showPageButtons ? [rowPageButtons, row] : [row] }); //replies to the command with the embed and action row which contains the string selector
             } else return await interaction.reply('There are no interactions added in this server!');
             const filter = (i) => i.user.id === interaction.user.id; //filter for the collector, checks if the user who initiated the original interaction is the one interacting now
+
+            try {
+                const pageButtonsCollector = await response.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60_000 })
+                pageButtonsCollector.on('collect', async (pageButtonsInteraction) => {
+                    if (pageButtonsInteraction.customId === 'prev') {
+                        const nextPage = [...JSONdata].splice(lastDisplayedIndex - 9, 9)
+                        if (!JSONdata[lastDisplayedIndex - 9]) {
+                            firstPage = true
+                            prevButton.setDisabled()
+                        }
+                        const newEmbed = new EmbedBuilder() //initializes the embed
+                            .setColor('#6EFFE8')
+                            .setTitle(`Current interactions for ${interaction.guild.name}`)
+                            .setDescription('Interactions added with the /addreaction command:')
+                            .setAuthor({ name: interaction.user.globalName, iconURL: interaction.user.avatarURL() })
+                            .setFooter({ text: interaction.client.user.displayName, iconURL: interaction.client.user.avatarURL() });
+                        const newSelector = new StringSelectMenuBuilder() //initializes the select menu
+                            .setCustomId('reactionsnew')
+                            .setPlaceholder('Select a reaction to edit or remove');
+                        const newSelectorRow = new ActionRowBuilder()
+
+
+                        nextPage.forEach((el, index) => {
+
+                            newEmbed.addFields(
+                                { name: `Message: "${el.message}"`, value: `Reaction: "${el.response}"\nType: ${el.type === 'text-reply' ? 'Text' : 'Emoji'}` }
+                            )
+
+                            newSelector.addOptions(
+                                new StringSelectMenuOptionBuilder()
+                                    .setLabel(el.message)
+                                    .setDescription(el.response)
+                                    .setValue(`${index}`)
+                            )
+
+                        })
+
+                        newSelectorRow.addComponents(newSelector)
+                        await pageButtonsInteraction.update({ embeds: [newEmbed], components: showPageButtons ? [rowPageButtons, newSelectorRow] : [newSelectorRow] })
+                    }
+                    if (pageButtonsInteraction.customId === 'next') {
+                        firstPage = false
+                        const nextPage = [...JSONdata].splice(lastDisplayedIndex + 1, 9)
+                        const newEmbed = new EmbedBuilder() //initializes the embed
+                            .setColor('#6EFFE8')
+                            .setTitle(`Current interactions for ${interaction.guild.name}`)
+                            .setDescription('Interactions added with the /addreaction command:')
+                            .setAuthor({ name: interaction.user.globalName, iconURL: interaction.user.avatarURL() })
+                            .setFooter({ text: interaction.client.user.displayName, iconURL: interaction.client.user.avatarURL() });
+                        const newSelector = new StringSelectMenuBuilder() //initializes the select menu
+                            .setCustomId('reactionsnew')
+                            .setPlaceholder('Select a reaction to edit or remove');
+                        const newSelectorRow = new ActionRowBuilder()
+
+
+                        nextPage.forEach((el, index) => {
+
+                            newEmbed.addFields(
+                                { name: `Message: "${el.message}"`, value: `Reaction: "${el.response}"\nType: ${el.type === 'text-reply' ? 'Text' : 'Emoji'}` }
+                            )
+
+                            newSelector.addOptions(
+                                new StringSelectMenuOptionBuilder()
+                                    .setLabel(el.message)
+                                    .setDescription(el.response)
+                                    .setValue(`${index}`)
+                            )
+
+                        })
+
+                        newSelectorRow.addComponents(newSelector)
+                        await pageButtonsInteraction.update({ embeds: [newEmbed], components: showPageButtons ? [rowPageButtons, newSelectorRow] : [newSelectorRow] })
+                    }
+                })
+            } catch (error) {
+                console.error(error)
+            }
 
             try { //every single interaction has to be awaited here including the response variable above because who the fuck knows, theyre all promise based. NEXT DAY UPDATE: Followed this video https://www.youtube.com/watch?v=fZ6thE4YMes and apparently it works if just the cololector is awaited
                 const collector = await response.createMessageComponentCollector({ filter, componentType: ComponentType.StringSelect, time: 60_000 })
@@ -105,6 +184,7 @@ module.exports = {
                     const collectorButtons = await response.createMessageComponentCollector({ filter, componentType: ComponentType.Button, time: 60_000 })
 
                     collectorButtons.on('collect', async interactionFromButton => { //when a button is pressed, executes logic for the selected button
+
                         if (interactionFromButton.customId === 'edit') {
                             const modal = new ModalBuilder()    //creating the modal
                                 .setCustomId('edit-modal')
@@ -167,7 +247,7 @@ module.exports = {
                         }
                         if (interactionFromButton.customId === 'delete') { //if delete button is pressed, call deleteFromJSON function and update the message
                             try {
-                                await deleteFromJSON(interactionFromButton, i.values, newArray)
+                                deleteFromJSON(interactionFromButton, i.values, newArray)
                                 await interactionFromButton.update({
                                     content: `✅ Successfully deleted "${currentReaction.message}" from reactions!`,
                                     components: [],
@@ -253,10 +333,7 @@ function replaceElementJSON(interInfo, data, indexPassed, newArray) {
     try {
         const jsonData = JSON.parse(fs.readFileSync(pathWithJSON)); //parses the array previously created
         if (Array.isArray(jsonData)) { //if the data in the file is an array, it pushes the data to it
-            console.log(jsonData)
-            console.log(newArray)
             const newArrayIndex = jsonData.findIndex(e => e.message === newArray[indexPassed].message && e.response === newArray[indexPassed].response)
-            console.log('find index', newArrayIndex)
             jsonData[newArrayIndex] = data; //at this point, we just updated the array we imported from the file but have not written the new data to the file yet.
             fs.writeFileSync(pathWithJSON, JSON.stringify(jsonData, null, 2));
         }
