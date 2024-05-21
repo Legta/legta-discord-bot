@@ -1,4 +1,3 @@
-const { time } = require('console');
 const { SlashCommandBuilder, EmbedBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder, ModalBuilder, TextInputStyle, TextInputBuilder, Events } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
