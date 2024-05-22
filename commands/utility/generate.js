@@ -14,11 +14,17 @@ module.exports = {
         .setDescription('Generate an AI image')
         .addStringOption((option) =>
             option.setName('prompt').setRequired(true).setDescription('Prompt to generate!')
+        )
+        .addStringOption((option) =>
+            option.setName('number').setRequired(false).setDescription('Number of images to generate (4 max)')
         ),
 
     async execute(interaction) {
         await interaction.deferReply()
         const prompt = interaction.options.getString('prompt').toLowerCase()
+        const numberOfImages = interaction.options.getString('number')? interaction.options.getString('number') : 1
+        const parsedBatchSize = parseInt(numberOfImages)
+        console.log(numberOfImages)
         const randomSeed = generateSeed()
         const body = JSON.stringify({
             "prompt": prompt,
@@ -26,18 +32,21 @@ module.exports = {
                 "cfg_scale": 7,
                 "seed": randomSeed,
                 "sampler_name": "k_dpmpp_2m",
+                "seed_variation": 1,
                 "height": 512,
                 "width": 512,
                 "steps": 30,
                 "tiling": false,
-                "karras": true,
-                "clip_skip": 2,
-                "n": 1
+                "clip_skip": 1,
+                "n": parsedBatchSize > 0 ? parsedBatchSize < 5 ? parsedBatchSize : 4 : 1
             },
             "nsfw": true,
+            "karras": true,
             "censor_nsfw": false,
             "trusted_workers": true,
-            "model": "Pony Diffusion XL",
+            "models": ["Pastel Mix"],
+            // "models": ["iCoMix"],
+            // "models": ["CamelliaMix 2.5D"],
             "r2": true,
             "replacement_filter": true,
             "shared": false,
@@ -52,6 +61,7 @@ module.exports = {
         })
             .then(response => response.json())
             .then(result => {
+                console.log(result)
                 genId = result.id
                 kudos = result.kudos
                 interaction.followUp(`Generating! Please be patient`)
@@ -59,7 +69,7 @@ module.exports = {
             })
 
         const interval = setInterval(async () => {
-            if (genId !== '') {
+            if (genId !== '' || genId !== undefined) {
                 console.log('checking ID:', hordeApi + `/v2/generate/check/${genId}`)
                 const check = await fetch(hordeApi + `/v2/generate/check/${genId}`).then(response => response.json()).then(result => result)
 
@@ -70,10 +80,8 @@ module.exports = {
 
                 if (check.done) {
                     const image = await fetch(hordeApi + `/v2/generate/status/${genId}`).then(response => response.json()).then(result => result)
-                    const imgUrl = image.generations[0].img
-                    interaction.followUp({content: `Generation finished for prompt "${prompt}" <@${interaction.user.id}>! \nCheck it out:`, files: [{attachment:imgUrl, name:'generation.png'}] })
-                    console.log(image)
-                    
+                    const attachments = image.generations.map(generation => ({ attachment: generation.img, name: 'generation.png' }))
+                    interaction.followUp({content: `Generation finished for prompt "${prompt}" <@${interaction.user.id}>! \nCheck it out:`, files: attachments })
                     console.log('Checking done')
                     return clearInterval(interval)
                 }
