@@ -53,16 +53,17 @@ module.exports = {
         console.log('Selected model:', selectedModel)
         const randomSeed = generateSeed()
         const body = JSON.stringify({
-            "prompt": selectedModel === 'Pony Diffusion XL'? 'score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up ' + prompt : prompt,
+            "prompt": selectedModel === 'Pony Diffusion XL'? 'score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, ' + prompt : prompt,
             "params": {
                 "cfg_scale": 7,
-                "seed": randomSeed,
+                //"seed": randomSeed,
                 "sampler_name": "k_dpmpp_2m",
                 "seed_variation": 1,
-                "height": 512,
-                "width": 512,
-                "steps": 30,
+                "height": 1024,
+                "width": 1024,
+                "steps": 50,
                 "tiling": false,
+		"hires_fix": false,
                 "clip_skip": selectedModel === 'Pony Diffusion XL' ? 2 : 1,
                 "n": parsedBatchSize > 0 ? parsedBatchSize < 5 ? parsedBatchSize : 4 : 1
             },
