@@ -9,7 +9,7 @@ const headers = {
 
 let currentModels = []
 
-fetch(hordeApi + '/v2/status/models').then(response => response.json()).then(result => result.map(model => currentModels.push(model.name)))
+fetch(hordeApi + '/v2/status/models?model_state=known').then(response => response.json()).then(result => result.map(model => currentModels.push(model.name)))
 
 module.exports = {
     data: new SlashCommandBuilder()
