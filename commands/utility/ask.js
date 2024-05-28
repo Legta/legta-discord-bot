@@ -1,84 +1,76 @@
-/*
-
-This is abandoned because I could not get the output to be consistent, it would return gibberish or always have weird stuff like cut off sentences, be too slow, etc.
-
-*/
-
 const { SlashCommandBuilder } = require('discord.js')
 const hordeApi = 'https://stablehorde.net/api/v2/'
-const { hordeKey } = require('../../../config.json')
+const { hordeKey } = require('../../config.json')
 // const fs = require('fs')
 // const path = require('path')
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('summarize')
-        .setDescription('Summarize the last 50 chat messages (excluding bots)'),
+        .setName('ask')
+        .setDescription('Ask something to an AI')
+        .addStringOption((option) => option.setName('prompt').setRequired(true).setDescription('What do you want to ask?')),
 
     async execute(interaction) {
         interaction.deferReply()
-        const messages = await interaction.channel.messages.fetch({ limit: 50 })
-        const filtered = messages.filter((message) => !message.author.bot)
-        const prompt = filtered.map(message => ({ content: message.cleanContent, author: message.author.username }))
-        console.log(`Data to send: ${JSON.stringify(prompt)}`)
-        const generationRequest = await sendGenRequest(JSON.stringify(prompt))
+        const question = interaction.options.getString('prompt')
+        const generationRequest = await sendGenRequest(question)
         interaction.followUp('Generating now...')
         const finalText = await getFinalText(generationRequest, interaction)
     }
 }
 
-async function sendGenRequest(messages) {
+async function sendGenRequest(prompt) {
     const summarization = await fetch(hordeApi + 'generate/text/async', {
         method: 'POST',
         headers: { 'apikey': hordeKey, 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            "prompt": `This is a chat conversation. Each message is a key-value pair, where "author" is the user and "content" is the message itself. Please summarize the key points of the conversation, including decisions made, topics discussed, or action items, in a concise paragraph.
+            "prompt": `The user has asked the following question: ${prompt}
 
-            **Message data:** ${messages}
+            Respond with:
             
-            **Summary:** (The summary of the conversation will be placed here)`,
+            A concise and informative answer to the user's question, based solely on the provided question and your general knowledge.
+            
+            'Uwufy' your response, for example: 
+
+            User's question: "When was Tekken 7 released?"
+
+            Your response: "Tekken 7 was weweased t-to awcades in Mawch 2015. It is the x3 seventh ÚwÚ main and nyinth uvwaww instawwment *sees bulge* in the x3 Tekken s-s-sewies, and is the x3 fiwst in that sewies t-to be weweased fow PC."
+            `,
             "params": {
             //     "n": 1,
             //     "frmtadsnsp": false,
                 "frmtrmblln": true,
                 "frmtrmspch": true,
                 "frmttriminc": true,
-            //     "max_context_length": 2048,
-            //     "max_length": 160,
-            //     "rep_pen": 1.1,
-            //     "rep_pen_range": 320,
-            //     "rep_pen_slope": 10,
+                "max_context_length": 2048,
+                "max_length": 200,
+                "rep_pen": 1.15,
+                "rep_pen_range": 320,
+                "rep_pen_slope": 10,
             //     "singleline": false,
-            //     "temperature": 0.7,
-            //     "tfs": 1,
-            //     "top_a": 0,
-            //     "top_k": 100,
-            //     "top_p": 0.92,
-            //     "typical": 1,
+                "temperature": 0.7,
+                "tfs": 1,
+                "top_a": 0,
+                "top_k": 100,
+                "top_p": 0.92,
+                "typical": 1,
             //     "sampler_order": [
             //         6,0,1,3,4,2,5
             //     ],
             //     "use_default_badwordsids": true,
-            //     "stop_sequence": [
-            //       "<|eot_id|>"
-            //     ],
-            //     "min_p": 0,
-            //     "smoothing_factor": 0,
-            //     "dynatemp_range": 0,
-            //     "dynatemp_exponent": 1
+                "stop_sequence": [
+                  "<|eot_id|>"
+                ],
+                "min_p": 0,
             },
-            // //   "softprompt": "string",
             // "trusted_workers": false,
             "slow_workers": false,
-            // "worker_blacklist": false,
               "models": [
                 // "aphrodite/KoboldAI/LLaMA2-13B-Estopia"
-            "aphrodite/NeverSleep/Llama-3-Lumimaid-8B-v0.1-OAS"
+            // "aphrodite/NeverSleep/Llama-3-Lumimaid-8B-v0.1-OAS"
             // "koboldcpp/Fimbulvetr-11B-v2.Q4_K_M"
+            "koboldcpp/Llama-3-Lumimaid-70B"
               ],
-            // "dry_run": false,
-            // "disable_batching": false,
-            // "allow_downgrade": false,
         })
     }).then(response => response.json()).then(result => result)
     const generationId = summarization.id
