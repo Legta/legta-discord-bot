@@ -10,8 +10,8 @@ module.exports = {
     async execute(interaction) {
         interaction.deferReply()
         const question = interaction.options.getString('prompt')
-        await sendGenRequest(question, interaction)
         interaction.followUp('Getting your answer...')
+        await sendGenRequest(question, interaction)
     }
 }
 
