@@ -8,9 +8,8 @@ module.exports = {
         .addStringOption((option) => option.setName('prompt').setRequired(true).setDescription('What do you want to ask?')),
 
     async execute(interaction) {
-        interaction.deferReply()
+        await interaction.deferReply()
         const question = interaction.options.getString('prompt')
-        interaction.followUp('Getting your answer...')
         await sendGenRequest(question, interaction)
     }
 }
@@ -23,9 +22,10 @@ async function sendGenRequest(prompt, interaction) {
     }
     const body = JSON.stringify({
         "model": "Awanllm-Llama-3-8B-Dolfin",
-        "messages": [{"role": "user", "content": `${prompt}`}],
+        "messages": [{ "role": "user", "content": `${prompt}` }],
         "temperature": 0.7
-      })
+    })
+    await interaction.followUp('Getting your answer...')
 
     const request = await fetch(chatGPTApi, {
         method: 'POST',
