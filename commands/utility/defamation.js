@@ -1,5 +1,4 @@
 const {SlashCommandBuilder, AttachmentBuilder} = require('discord.js')
-const stream = require('node:stream')
 
 module.exports = {
     data: new SlashCommandBuilder().setName('defamation').setDescription('Shows a random hermahs defamation'),
