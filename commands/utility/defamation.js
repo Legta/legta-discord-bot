@@ -10,6 +10,6 @@ module.exports = {
         if (!image.ok) return interaction.followUp("Couldn't retrieve image...")
         const contentType = image.headers.get('content-type')
         const attachment = new AttachmentBuilder().setFile(image.body).setName(`hermahs_defamation.${contentType.split('/').pop()}`)
-        await interaction.followUp({files: [attachment]})
+        await interaction.editReply({content: '', files: [attachment]})
     }
 }
