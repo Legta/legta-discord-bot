@@ -80,24 +80,25 @@ client.on('messageCreate', async (interaction) => {
 		return;
 	}
 
-	if (interaction.channelId === '1203856458379427861' && interaction.guildId === '1201681485808009249') { //For specific humiliations channel in legtas gaming server
+	if (interaction.channelId === '1251000336865558689' && interaction.guildId === '1191122530203869224') { //For specific humiliations channel in legtas gaming server
 		try {
 			const messageAttachments = JSON.parse(JSON.stringify(interaction.attachments));
 			const saveImage = async (attachment) => {
 				const response = await fetch('http://api.hermahs.com/add_defamation', {
 					'method' : 'POST',
 					headers: {
-						'content-type':'image/' + attachment.name.split('.').pop(),
+						'content-type' : 'application/json'
 					},
-					body: {
+					body: JSON.stringify({
 						'imageURL' : attachment.proxyURL
-					}
+					})
 				})
+				console.log('Sent image to api')
 			}
 			if (messageAttachments.length > 0) {
 				messageAttachments.forEach(async (attachment) => await saveImage(attachment))
 				return interaction.react("✅")
-			}
+			} else return
 		} catch (error) {
 			console.error(error)
 			return interaction.react("❌")
