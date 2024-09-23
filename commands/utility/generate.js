@@ -63,7 +63,7 @@ module.exports = {
                 "width": 512,
                 "steps": 20,
                 "tiling": false,
-		        "hires_fix": true,
+		        "hires_fix": false,
                 "clip_skip": selectedModel === 'Pony Diffusion XL' ? 2 : 1,
                 "n": parsedBatchSize > 0 ? parsedBatchSize < 5 ? parsedBatchSize : 4 : 1
             },
