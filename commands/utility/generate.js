@@ -20,7 +20,7 @@ module.exports = {
         )
         .addStringOption((option) => option
             .setName('model')
-            .setDescription('Choose which model to use for generation')
+            .setDescription('Choose which model to use for generation (Flux fp8 recommended)')
             .setRequired(true)
             .setAutocomplete(true)
         )
@@ -51,17 +51,17 @@ module.exports = {
         const selectedModel = interaction.options.getString('model')
         const parsedBatchSize = parseInt(numberOfImages)
         console.log('Selected model:', selectedModel)
-        const randomSeed = generateSeed()
+//        const randomSeed = generateSeed()
         const body = JSON.stringify({
             "prompt": selectedModel === 'Pony Diffusion XL'? 'score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, ' + prompt : prompt,
             "params": {
-                "cfg_scale": 7,
+                "cfg_scale": selectedModel === 'Flux.1-Schnell fp8 (Compact)' ? 3.5 : 7,
                 //"seed": randomSeed,
-                "sampler_name": "k_dpmpp_2m",
+                "sampler_name": "k_euler",
                 "seed_variation": 1,
-                "height": 1024,
-                "width": 1024,
-                "steps": 50,
+                "height": 512,
+                "width": 512,
+                "steps": 20,
                 "tiling": false,
 		"hires_fix": false,
                 "clip_skip": selectedModel === 'Pony Diffusion XL' ? 2 : 1,
