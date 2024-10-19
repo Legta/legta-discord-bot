@@ -1,9 +1,19 @@
+/*
+	* Arguments: 
+	* -testing //starts the bot in test mode (meaning that it starts the slipi-test bot instead of the main one)
+*/
+
 // Require the necessary discord.js classes
 const { Client, Collection, Events, GatewayIntentBits, ActivityType } = require('discord.js');
-const { token } = require('./config.json');
+const { token, testingBotToken } = require('./config.json');
 // Require Node.js filesystem and path properties to be able to read directories and identify files. path helps construct paths to access files and directories. One of the advantages of the path module is that it automatically detects the operating system and uses the appropriate joiners.
 const fs = require('node:fs');
 const path = require('node:path');
+
+let testMode = false;
+if (process.argv.length > 2) {
+	if (process.argv[2].toLowerCase() === "-testing") testMode = true;
+}
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildPresences]}); //some of these intents need to be enabled in the discord developer portal
@@ -19,13 +29,13 @@ client.once(Events.ClientReady, readyClient => {
 });
 
 // Log in to Discord with your client's token
-client.login(token);
+client.login(testMode? testingBotToken : token);
 
 
 const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
-for (const folder of commandFolders) {  //for loop to get the filepath of the commands files
+for (const folder of commandFolders) {  											//for loop to get the filepath of the commands files
 	const commandsPath = path.join(foldersPath, folder);
 	const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 	for (const file of commandFiles) {
@@ -39,10 +49,11 @@ for (const folder of commandFolders) {  //for loop to get the filepath of the co
 	}
 }
 
-client.on(Events.InteractionCreate, async interaction => { //using .on() method as listener for the interaction. The interaction is "Events.InteractionCreate" then execute the specified function
-	if (interaction.isChatInputCommand()) { //if statement to check if the interaction received by the bot is a slash command. If it is not, just exit the function
-		const command = interaction.client.commands.get(interaction.commandName); //this finds the command that was inputted by the user. "interaction.client" lets you use the Client instance. .commands is the collection created earlier which holds the commands. .get() is a method provided by the Collections imported class used to find the command. We pass the interaction.commandName property to this method to find the command name https://discordjs.guide/creating-your-bot/command-handling.html#executing-commands
-		if (!command) /* falsy condition, if the command provided is not in the client.commands collection it will be falsy and execute this block. */ {
+client.on(Events.InteractionCreate, async interaction => { 							//using .on() method as listener for the interaction. The interaction is "Events.InteractionCreate" then execute the specified function
+	if (interaction.isChatInputCommand()) { 										//if statement to check if the interaction received by the bot is a slash command. If it is not, just exit the function
+		const command = interaction.client.commands.get(interaction.commandName); 	//this finds the command that was inputted by the user. "interaction.client" lets you use the Client instance. .commands is the collection created earlier which holds the commands. .get() is a method provided by the Collections imported class used to find the command. We pass the interaction.commandName property to this method to find the command name https://discordjs.guide/creating-your-bot/command-handling.html#executing-commands
+		if (!command) 																/* falsy condition, if the command provided is not in the client.commands collection it will be falsy and execute this block. */ 
+		{
 			console.log(`${command} was not found in the commands collection`);
 		}
 		try {

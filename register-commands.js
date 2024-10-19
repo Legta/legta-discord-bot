@@ -1,11 +1,15 @@
 //https://discordjs.guide/creating-your-bot/command-deployment.html#guild-commands
 const { REST, Routes } = require('discord.js');
-const { clientId, token, guildId } = require('./config.json');
+const { clientId, token, guildId, testingBotClientId, testingBotToken } = require('./config.json');
 const fs = require('node:fs');
 const path = require('path');
 
 const commands = [];
 
+let testMode = false;
+if (process.argv.length > 2) {
+	if (process.argv[2].toLowerCase() === "-testing") testMode = true;
+}
 
 // Grab all the command folders from the commands directory you created earlier
 const foldersPath = path.join(__dirname, 'commands', 'utility');
@@ -40,7 +44,7 @@ console.log(commands)
 // }
 
 // Construct and prepare an instance of the REST module
-const rest = new REST().setToken(token);
+const rest = new REST().setToken(testMode? testingBotToken : token);
 
 // and deploy your commands!
 
@@ -50,7 +54,7 @@ const rest = new REST().setToken(token);
 
         // The put method is used to fully refresh all commands in the guild with the current set
         const data = await rest.put(
-            Routes.applicationCommands(clientId),
+            Routes.applicationCommands(testMode? testingBotClientId : clientId),
             { body: commands },
         );
 
