@@ -79,6 +79,13 @@ client.on(Events.InteractionCreate, async interaction => { 							//using .on() 
 		} catch (error) {
 			console.error(error);
 		}
+	} else if (interaction.isContextMenuCommand()) {
+		const command = interaction.client.commands.get(interaction.commandName)
+		try {
+			await command.execute(interaction)
+		} catch (error) {
+			interaction.reply({content:"There was an issue executing this command.", ephemeral: true})
+		}
 	}
 } );
 
@@ -91,11 +98,17 @@ client.on('messageCreate', async (interaction) => {
 		return;
 	}
 
-	if (interaction.channelId === '1251000336865558689' && interaction.guildId === '1191122530203869224') { //For specific humiliations channel in legtas gaming server
+// Bot testing server ID: 1201681485808009249
+// Bot testing channel ID: 1203856458379427861
+
+// Main server ID: 1191122530203869224
+// Main server channel: 1251000336865558689
+
+	if (interaction.channelId === '1203856458379427861' && interaction.guildId === '1201681485808009249') { //For specific humiliations channel in legtas gaming server
 		try {
 			const messageAttachments = JSON.parse(JSON.stringify(interaction.attachments));
 			const saveImages = async (arrayOfImgURLs) => {													//This function makes an API request to HermahsAPI with an array of links to download
-				const response = await fetch('http://api.hermahs.com/add_defamation', {
+				const addDefamation = await fetch('http://api.hermahs.com/add_defamation', {
 					'method' : 'POST',
 					headers: {
 						'content-type' : 'application/json'
@@ -109,6 +122,7 @@ client.on('messageCreate', async (interaction) => {
 			if (messageAttachments.length > 0) {
 				const imageURLsToPush = [];
 				messageAttachments.forEach((attachment) => {
+					console.log(attachment.proxyURL)
 					imageURLsToPush.push(attachment.proxyURL)
 				})
 				await saveImages(imageURLsToPush)
