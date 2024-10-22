@@ -35,13 +35,13 @@ module.exports = {
             const messageText = interaction.targetMessage.content || "";
             const deferred = await interaction.deferReply({ephemeral: false, fetchReply: true}); //Stores the deferred message
     
-            const templateImgPath = path.join(__dirname, "assets", "quote_template.png");
+            const templateImgPath = path.join(__dirname, "..", "..", "assets", "quote_template.png");
             const backgroundPng = await Jimp.read(templateImgPath);
             const avatarImageLink = interaction.targetMessage.author.avatarURL({extension: "png", size: 512}); //Gets the link with png extension, otherwise it gets webp and Jimp can't work with that
             const avatarImage = await Jimp.read(await getAvatar(avatarImageLink));
             const canvas = new Jimp({ width: canvasSize.width, height: canvasSize.height, color: 0xffffffff }); //Creates the canvas to then composite the images on top of it;
             const font = await loadFont(SANS_32_WHITE);
-            const italicFont = await loadFont(path.join(__dirname, "assets", "CrimsonTextItalic.fnt"));
+            const italicFont = await loadFont(path.join(__dirname, "..", "..", "assets", "CrimsonTextItalic.fnt"));
     
             avatarImage.resize({w: avatarSize.width, h: avatarSize.height})
             canvas.composite(avatarImage)
