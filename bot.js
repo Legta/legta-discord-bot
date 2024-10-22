@@ -104,7 +104,7 @@ client.on('messageCreate', async (interaction) => {
 // Main server ID: 1191122530203869224
 // Main server channel: 1251000336865558689
 
-	if (interaction.channelId === '1203856458379427861' && interaction.guildId === '1201681485808009249') { //For specific humiliations channel in legtas gaming server
+	if (interaction.channelId === '1251000336865558689' && interaction.guildId === '1191122530203869224') { //For specific humiliations channel in legtas gaming server
 		try {
 			const messageAttachments = JSON.parse(JSON.stringify(interaction.attachments));
 			const saveImages = async (arrayOfImgURLs) => {													//This function makes an API request to HermahsAPI with an array of links to download
