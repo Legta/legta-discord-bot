@@ -283,7 +283,7 @@ module.exports = {
                 console.error(error)
             }
 
-            try { //every single interaction has to be awaited here including the response variable above because who the fuck knows, theyre all promise based. NEXT DAY UPDATE: Followed this video https://www.youtube.com/watch?v=fZ6thE4YMes and apparently it works if just the cololector is awaited
+            try { //every single interaction has to be awaited here including the response variable above because who the fuck knows, theyre all promise based. NEXT DAY UPDATE: Followed this video https://www.youtube.com/watch?v=fZ6thE4YMes and apparently it works if just the collector is awaited
                 const collector = await response.createMessageComponentCollector({ filter, componentType: ComponentType.StringSelect, time: 60_000 })
                 collector.on('collect', async i => { //when the user selects an option, updates the message to include buttons
                     const index = i.values; //index of the selected element should be the same as the index of it in the JSON
@@ -343,9 +343,9 @@ module.exports = {
                             const modalFilter = modalFilterInteraction => modalFilterInteraction.customId === 'edit-modal'; //filter for the modal
                             interactionFromButton.awaitModalSubmit({ filter: modalFilter, time: 60_000 }).then(async modalInteraction => { //using .awaitModalSubmit on the button interaction to await for modal submission that passes the filter, since its promise based use .then() to execute code once modal is submitted
                                 const newReaction = { //object that holds the data inputted by the user, it uses the same keys as the responses.json objects since it will later replace an object there so it should have the same format.
-                                    message: modalInteraction.fields.getTextInputValue('new-message'),
-                                    response: modalInteraction.fields.getTextInputValue('new-reaction'),
-                                    type: modalInteraction.fields.getTextInputValue('new-reaction-type'),
+                                    message: modalInteraction.fields.getTextInputValue('new-message').toLowerCase(),
+                                    response: modalInteraction.fields.getTextInputValue('new-reaction').toLowerCase(),
+                                    type: modalInteraction.fields.getTextInputValue('new-reaction-type').toLowerCase(),
                                 }
                                 switch (modalInteraction.fields.getTextInputValue('new-reaction-type').toLowerCase()) {
                                     case 'text':
