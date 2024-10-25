@@ -144,10 +144,10 @@ client.on('messageCreate', async (interaction) => {
 		} )
 		for (let i=0;i<matchIndexes.length;i++) {
 			if (readData[matchIndexes[i]].type === 'emoji') {
-				interaction.react(readData[matchIndexes[i]].response)
+				await interaction.react(readData[matchIndexes[i]].response)
 				console.log(`Reacted with ${readData[matchIndexes[i]].response} to "${interaction.content}" by ${interaction.author.globalName}`)
 			} else if (readData[matchIndexes[i]].type === 'text-reply') {
-				interaction.reply(readData[matchIndexes[i]].response)
+				await interaction.reply({content: readData[matchIndexes[i]].response, allowedMentions: {repliedUser: false}}) //https://old.discordjs.dev/#/docs/discord.js/main/typedef/BaseMessageOptions
 				console.log(`Replied with ${readData[matchIndexes[i]].response} to "${interaction.content}" by ${interaction.author.globalName}`)
 			}
 		}
