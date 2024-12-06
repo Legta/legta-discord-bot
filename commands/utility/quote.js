@@ -31,7 +31,7 @@ module.exports = {
     async execute (interaction) {
 
         try {
-            if (interaction.targetMessage.author.bot) return interaction.reply({content: "Can't quote a bot...", ephemeral: true});
+            //if (interaction.targetMessage.author.bot) return interaction.reply({content: "Can't quote a bot...", ephemeral: true});
             const messageText = interaction.targetMessage.content || "";
             const deferred = await interaction.deferReply({ephemeral: false, fetchReply: true}); //Stores the deferred message
     
