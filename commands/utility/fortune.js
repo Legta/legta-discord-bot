@@ -6,6 +6,7 @@ module.exports = {
 
         const fortuneStarters = [
             "You will",
+            "Very soon, you will",
             "You want to",
             "You feel like you need to",
             "Your friend will",
@@ -23,6 +24,14 @@ module.exports = {
             "There is no time to explain, you have to",
             "Dubby will",
             "Swadley FINALLY gets to",
+            "The prophecy has foretold that",
+            "It is written in the stars that",
+            "The universe has decreed that",
+            "The gods have spoken and say",
+            "You are destined to",
+            "Your fate is sealed and you will",
+            "The crystal ball reveals that",
+            "The tarot cards indicate that",
         ];
         const fortuneActions = [
             "meet",
@@ -46,6 +55,14 @@ module.exports = {
             "have hot sweaty dirty sex with",
             "get killed by",
             "get diarrhea caused by eating",
+            "become best friends with",
+            "go on a wild adventure with",
+            "discover a hidden talent for",
+            "fall deeply in love with",
+            "have a fierce rivalry with",
+            "uncover a dark secret about",
+            "embark on a perilous quest with",
+            "make a pact with",
         ];
         const fortuneAdjectives = [
             "dark",
@@ -70,7 +87,15 @@ module.exports = {
             "finger lickin' good",
             "supreme",
             "sudden",
-            "mystical"
+            "mystical",
+            "ancient",
+            "forgotten",
+            "legendary",
+            "mythical",
+            "powerful",
+            "weak",
+            "strong",
+            "feeble",
         ];
         const fortuneSubjects = [
             "man",
@@ -101,7 +126,15 @@ module.exports = {
             "Pikachu",
             "Fortnite",
             "fucker",
-            "shitter"
+            "shitter",
+            "dragon",
+            "unicorn",
+            "mermaid",
+            "vampire",
+            "werewolf",
+            "zombie",
+            "alien",
+            "robot uprising",
         ];
 
         const starter = fortuneStarters[selectRandomArrayIndex(fortuneStarters)];
