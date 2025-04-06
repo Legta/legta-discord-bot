@@ -1,3 +1,8 @@
 config.json
 guild-data/
 node_modules/
+.idea/.gitignore
+.idea/discord-bot.iml
+.idea/encodings.xml
+.idea/indexLayout.xml
+.idea/vcs.xml
