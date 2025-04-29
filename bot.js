@@ -108,7 +108,7 @@ client.on('messageCreate', async (interaction) => {
 		try {
 			const messageAttachments = JSON.parse(JSON.stringify(interaction.attachments));
 			const saveImages = async (arrayOfImgURLs) => {													//This function makes an API request to HermahsAPI with an array of links to download
-				const addDefamation = await fetch('http://api.hermahs.com/add_defamation', {
+				const addDefamation = await fetch('https://api.hermahs.com/add_defamation', {
 					'method' : 'POST',
 					headers: {
 						'content-type' : 'application/json'
