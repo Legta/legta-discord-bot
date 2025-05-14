@@ -7,10 +7,6 @@ const headers = {
     'Content-Type': 'application/json'
 };
 
-let currentModels = []
-
-fetch(hordeApi + '/v2/status/models?model_state=known').then(response => response.json()).then(result => result.map(model => currentModels.push(model.name)))
-
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('generate')
@@ -20,64 +16,64 @@ module.exports = {
         )
         .addStringOption((option) => option
             .setName('model')
-            .setDescription('Choose which model to use for generation (Flux fp8 recommended)')
+            .setDescription('Choose which model to use for generation')
             .setRequired(true)
-            .setAutocomplete(true)
+            .addChoices(
+                { name: "Realistic", value: "realistic" },
+                { name: "Anime", value: "anime"}
+            )
         )
         .addStringOption((option) =>
             option.setName('number').setRequired(false).setDescription('Number of images to generate (4 max)')
-        )
-    ,
-
-    async autocomplete(interaction) {
-        const focusedValue = interaction.options.getFocused();
-        if (focusedValue === '') return await interaction.respond(
-            currentModels.slice().splice(0, 24).map(choice => ({name: choice, value: choice}))
-        )
-        if (currentModels.length > 0) {
-            const choices = currentModels
-            // console.log('focused', focusedValue)
-            const filtered = choices.filter(choice => choice.toLowerCase().startsWith(focusedValue));
-            await interaction.respond(
-                filtered.map(choice => ({ name: choice, value: choice })),
-            );
-        }
-    },
+        ),
 
     async execute(interaction) {
+
         await interaction.deferReply()
         const prompt = interaction.options.getString('prompt').toLowerCase()
         const numberOfImages = interaction.options.getString('number') ? interaction.options.getString('number') : 1
         const selectedModel = interaction.options.getString('model')
         const parsedBatchSize = parseInt(numberOfImages)
-        console.log('Selected model:', selectedModel)
-//        const randomSeed = generateSeed()
-        const body = JSON.stringify({
-            "prompt": selectedModel === 'Pony Diffusion XL'? 'score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, ' + prompt : prompt,
+
+        const animeParameters = {
+            "prompt": `${prompt} ### ugly, bad anatomy, horrid, watermark, bad art, bad text, illegible, nsfw, naked, nude, nipple, nipples`,
             "params": {
-                "cfg_scale": selectedModel === 'Flux.1-Schnell fp8 (Compact)' ? 3.5 : 7,
-                //"seed": randomSeed,
-                "sampler_name": "k_euler",
-                "seed_variation": 1,
-                "height": 512,
-                "width": 512,
-                "steps": 20,
-                "tiling": false,
-		        "hires_fix": false,
-                "clip_skip": selectedModel === 'Pony Diffusion XL' ? 2 : 1,
-                "n": parsedBatchSize > 0 ? parsedBatchSize < 5 ? parsedBatchSize : 4 : 1
+                "cfg_scale": 5,
+                "sampler_name": "k_dpm_2_a",
+                "height": 1024,
+                "width": 1024,
+                "steps": 30,
+                "karras": true,
+                "hires_fix": false,
+                "clip_skip": 2,
+                "n": parsedBatchSize ? parsedBatchSize : 1,
             },
-            "nsfw": true,
-            "censor_nsfw": false,
-            "trusted_workers": true,
-            "models": [selectedModel],
-            // "r2": true,
-            // "replacement_filter": true,
-            "shared": false,
-            "slow_workers": false,
-            "dry_run": false
-        })
-        let genId = ''
+            "models": [
+                "Nova Anime XL"
+            ]
+            };
+
+        const realisticParameters = {
+            "prompt": `${prompt} photo realistic, ultra details ### ugly, bad anatomy, horrid, watermark, bad art, bad text, illegible, anime, cartoon, unrealistic proportions, nsfw, nude, naked, nipples, genitals`,
+            "params": {
+                "cfg_scale": 5,
+                "seed": "840278060",
+                "sampler_name": "k_dpmpp_sde",
+                "height": 1024,
+                "width": 1024,
+                "steps": 35,
+                "karras": true,
+                "hires_fix": false
+            },
+            "models": [
+                "AlbedoBase XL (SDXL)"
+            ]
+        }
+        
+
+        const body = JSON.stringify( selectedModel === "anime" ? animeParameters : realisticParameters )
+
+        let genId = '';
         const apiData = await fetch(hordeApi + `v2/generate/async`, {
             method: 'POST',
             headers: headers,
@@ -88,14 +84,15 @@ module.exports = {
                 console.log(result)
                 genId = result.id
                 kudos = result.kudos
-                interaction.followUp(`Generating! Please be patient`)
+                interaction.followUp(`Generating! Please be patient, time can vary`)
                 return result
             })
 
+        let hasMessageBeenRepliedTo = false;    
         const interval = setInterval(async () => {
             if (genId !== '' || genId !== undefined) {
-                console.log('checking ID:', hordeApi + `/v2/generate/check/${genId}`)
-                const check = await fetch(hordeApi + `/v2/generate/check/${genId}`).then(response => response.json()).then(result => result)
+                console.log('checking ID:', hordeApi + `v2/generate/check/${genId}`)
+                const check = await fetch(hordeApi + `v2/generate/check/${genId}`).then(response => response.json()).then(result => result)
 
                 if (check.faulted) {
                     interaction.followUp('Image could not be generated')
@@ -103,12 +100,17 @@ module.exports = {
                 }
 
                 if (check.done) {
-                    const image = await fetch(hordeApi + `/v2/generate/status/${genId}`).then(response => response.json()).then(result => result)
+                    const image = await fetch(hordeApi + `v2/generate/status/${genId}`).then(response => response.json()).then(result => result)
                     const attachments = image.generations.map(generation => ({ attachment: generation.img, name: 'generation.png' }))
-                    interaction.followUp({ content: `Generation finished for prompt "${prompt}" <@${interaction.user.id}>! \nCheck it out:`, files: attachments })
-                    console.log('Checking done')
-                    console.log(check)
-                    console.log(image)
+                    if (!hasMessageBeenRepliedTo) {
+                        console.log('Checking done')
+                        console.log(check)
+                        console.log(image)
+                        interaction.followUp({ content: `Generation finished for prompt "${prompt}" <@${interaction.user.id}>! \nCheck it out:`, files: attachments })
+                        hasMessageBeenRepliedTo = true;
+                    } else {
+                        console.log("Interaction has already been replied to.")
+                    }
                     return clearInterval(interval)
                 }
                 console.log(`generating... \nWait time: ${check.wait_time}\nQueue position: ${check.queue_position}`)
