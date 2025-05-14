@@ -57,7 +57,6 @@ module.exports = {
             "prompt": `${prompt} photo realistic, ultra details ### ugly, bad anatomy, horrid, watermark, bad art, bad text, illegible, anime, cartoon, unrealistic proportions, nsfw, nude, naked, nipples, genitals`,
             "params": {
                 "cfg_scale": 5,
-                "seed": "840278060",
                 "sampler_name": "k_dpmpp_sde",
                 "height": 1024,
                 "width": 1024,
