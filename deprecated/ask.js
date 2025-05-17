@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js')
-const { awanLLMKey } = require('../../config.json')
+const { awanLLMKey } = require('../config.json')
 
 module.exports = {
     data: new SlashCommandBuilder()
