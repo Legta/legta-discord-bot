@@ -229,6 +229,10 @@ client.on("messageCreate", async (interaction) => {
   }
 });
 
+client.on("error", error => {
+  console.error("Discord.js client error: ", error)
+})
+
 process.on("SIGINT", async () => {
 	console.log("Gracefully exiting bot...")
 	await client.destroy()
@@ -237,4 +241,9 @@ process.on("SIGINT", async () => {
 process.on("SIGTERM", async () => {
 	console.log("Gracefully exiting bot...")
 	await client.destroy()
+})
+
+process.on("unhandledRejection", (reason, promise) => {
+  console.error("Unhandled rejection at: ", promise, "reason:", reason)
+  process.exit(1)
 })
