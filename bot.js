@@ -34,18 +34,49 @@ const client = new Client({
 
 client.commands = new Collection();
 
+//Variables for status changing interval
+let presenceIntervalFunc;  
+let currentPresenceIndex = 0;
+
 // When the client is ready, run this code (only once).
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
 // It makes some properties non-nullable.
 client.once(Events.ClientReady, (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-  client.user.setPresence({
-    activities: [
-      { name: 'sliping... ".say" to make me talk', type: ActivityType.Custom },
-    ],
-    status: "dnd",
-  }); //Sets the bot's activity, such as playing, watching, etc. Need to import "ActivityType" from discord.js to change the type.
+  changePresence()
 });
+
+presenceIntervalFunc = setInterval(() => {changePresence(false)}, 900000); //15min
+
+function changePresence() {
+  const names = [
+      "Dubby",
+      "Legta",
+      "Swadley",
+      "Habatwo",
+      "Rubi",
+      "Zettyns",
+      "Joy",
+      "Seikuz",
+    ];
+
+    const maxIndex = names.length - 1;
+    const nameToDisplay = names[currentPresenceIndex];
+
+    client.user.setPresence({
+      activities: [
+        {
+          name: `Killing ${nameToDisplay}... /say to make me talk`,
+          type: ActivityType.Custom,
+        },
+      ],
+      status: "dnd",
+    });
+
+    currentPresenceIndex++;
+    if (currentPresenceIndex > maxIndex) currentPresenceIndex = 0;
+}
+
 
 // Log in to Discord with your client's token
 client.login(testMode ? testingBotToken : token);
@@ -127,17 +158,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
 client.on("messageCreate", async (interaction) => {
   if (interaction.author.bot) return;
-  if (interaction.content.toLowerCase().startsWith(".say ", 0)) {
-    //if message starts with '.say' it sends whatever the content of the message is and deletes the original .say message by the user
-    interaction.channel.send(interaction.content.replace(/.say/gi, ""));
-    console.log(
-      `Sent "${interaction.content.replace(/.say/gi, "")}" by ${
-        interaction.author.globalName
-      } to #${interaction.channel.name} in ${interaction.guild.name}`
-    );
-    interaction.delete();
-    return;
-  }
 
   // Bot testing server ID: 1201681485808009249
   // Bot testing channel ID: 1203856458379427861
@@ -229,21 +249,24 @@ client.on("messageCreate", async (interaction) => {
   }
 });
 
-client.on("error", error => {
-  console.error("Discord.js client error: ", error)
-})
+client.on("error", (error) => {
+  console.error("Discord.js client error: ", error);
+});
 
 process.on("SIGINT", async () => {
-	console.log("Gracefully exiting bot...")
-	await client.destroy()
-})
+  console.log("Gracefully exiting bot...");
+  clearInterval(presenceIntervalFunc)
+  await client.destroy();
+});
 
 process.on("SIGTERM", async () => {
-	console.log("Gracefully exiting bot...")
-	await client.destroy()
-})
+  console.log("Gracefully exiting bot...");
+  clearInterval(presenceIntervalFunc)
+  await client.destroy();
+});
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.error("Unhandled rejection at: ", promise, "reason:", reason)
-  process.exit(1)
-})
+  console.error("Unhandled rejection at: ", promise, "reason:", reason);
+  clearInterval(presenceIntervalFunc)
+  process.exit(1);
+});
