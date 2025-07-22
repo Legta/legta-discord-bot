@@ -1,3 +1,5 @@
+import { ChatInputCommandInteraction, SlashCommandStringOption } from "discord.js";
+
 const { SlashCommandBuilder } = require('discord.js');
 const path = require('path');
 const fs = require('node:fs');
@@ -6,18 +8,18 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('addreaction')
         .setDescription('Specify a reaction or reply that will be added to messages with the content you specify')
-        .addStringOption((option) =>
+        .addStringOption((option: SlashCommandStringOption) =>
             option.setName('message')
                 .setDescription('Specify the content that will be reacted/replied to')
                 .setRequired(true)
                 .setMinLength(1)
         )
-        .addStringOption((option) =>
+        .addStringOption((option: SlashCommandStringOption) =>
             option.setName('reaction')
                 .setDescription('Enter the emoji reaction or reply that will be added to the message')
                 .setRequired(true)
         )
-        .addStringOption((option) =>
+        .addStringOption((option: SlashCommandStringOption) =>
             option.setName('type')
                 .setDescription('Select the type of interaction the bot will perform')
                 .addChoices(
@@ -28,8 +30,8 @@ module.exports = {
 
         ),
 
-    async execute(interaction) {
-        const message = interaction.options.getString('message').toLowerCase();
+    async execute(interaction: ChatInputCommandInteraction) {
+        const message = (interaction.options.getString('message') as string).toLowerCase();
         const reactionOrReply = interaction.options.getString('reaction');
         const typeOfInteraction = interaction.options.getString('type');
         const dataObject = {
@@ -42,9 +44,9 @@ module.exports = {
 
         if (!checkIfJSONExists(interaction)) createJSON(interaction)
 
-        if (!checkIfInteractionExists(interaction, dataObject)) {
+        if (!checkIfInteractionExists(interaction, dataObject) && reactionOrReply) {
             if (typeOfInteraction === 'emoji' && reactionOrReply.match(unicodeEmojiRegex) || typeOfInteraction === 'emoji' && reactionOrReply.match(customEmojiRegex)) {
-                dataObject.response = reactionOrReply.match(unicodeEmojiRegex) ? reactionOrReply.match(unicodeEmojiRegex)[0] : reactionOrReply.match(customEmojiRegex)[0];
+                dataObject.response = reactionOrReply.match(unicodeEmojiRegex) ? (reactionOrReply.match(unicodeEmojiRegex) as string[])[0] : (reactionOrReply.match(customEmojiRegex) as string[])[0];
                 writeJSON(interaction, dataObject);
                 interaction.reply({ content: `✅ Interaction created!\nMessage to react to messages containing: ${message}\nBot will react with: "${dataObject.response}"`, ephemeral: true });
             } else if (typeOfInteraction === 'text-reply' && reactionOrReply.length > 0) {
@@ -60,8 +62,8 @@ module.exports = {
 }
 
 
-function createJSON(interInfo, data = '') { //creates the JSON file if it does not exist already. interInfo stands for "interaction Info" as in the interaction data from the Discord generated interaction.
-    const folderPath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild.id);
+function createJSON(interInfo: ChatInputCommandInteraction, data = '') { //creates the JSON file if it does not exist already. interInfo stands for "interaction Info" as in the interaction data from the Discord generated interaction.
+    const folderPath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild?.id);
     const pathWithJSON = path.join(folderPath, 'responses.json');
 
     if (!checkIfJSONExists(interInfo)) {
@@ -76,15 +78,15 @@ function createJSON(interInfo, data = '') { //creates the JSON file if it does n
     }
 }
 
-function readJSON(interInfo) {
-    const folderPath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild.id);
+function readJSON(interInfo: ChatInputCommandInteraction) {
+    const folderPath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild?.id);
     const pathWithJSON = path.join(folderPath, 'responses.json');
     const jsonData = JSON.parse(fs.readFileSync(pathWithJSON));
     return jsonData;
 }
 
-function writeJSON(interInfo, data) {
-    const folderPath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild.id); //Sets the folder path, using the guild ID as the name of the folder where the file will be saved
+function writeJSON(interInfo: ChatInputCommandInteraction, data: any) {
+    const folderPath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild?.id); //Sets the folder path, using the guild ID as the name of the folder where the file will be saved
     const pathWithJSON = path.join(folderPath, 'responses.json'); //just the full folder path with the name of the file added
     try {
         const jsonData = JSON.parse(fs.readFileSync(pathWithJSON)); //parses the array previously created
@@ -101,8 +103,8 @@ function writeJSON(interInfo, data) {
     }
 }
 
-function checkIfJSONExists(interInfo) { //Will check if the file exists and create the directory if that doesn't exist either
-    const JSONpath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild.id);
+function checkIfJSONExists(interInfo: ChatInputCommandInteraction) { //Will check if the file exists and create the directory if that doesn't exist either
+    const JSONpath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild?.id);
     const JSONfilename = `responses.json`;
     if (fs.existsSync(JSONpath)) {
         return fs.existsSync(path.join(JSONpath, JSONfilename));
@@ -114,7 +116,7 @@ function checkIfJSONExists(interInfo) { //Will check if the file exists and crea
     }
 }
 
-function checkIfInteractionExists(interInfo, data) {
+function checkIfInteractionExists(interInfo: ChatInputCommandInteraction, data: any) {
     const existingData = readJSON(interInfo);
     for (let i = 0; i < existingData.length; i++) {
         if (require('util').isDeepStrictEqual(data, existingData[i])) {
