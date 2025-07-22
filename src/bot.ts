@@ -15,12 +15,11 @@ import {
   MessageCreateOptions,
 } from "discord.js";
 import { token, testingBotToken } from "#config";
-import { saveImages, sendDefamation } from "#functions";
+import { randomDefamationSend, saveImages } from "#functions";
 import { Reaction } from "./types/types";
 // Require Node.js filesystem and path properties to be able to read directories and identify files. path helps construct paths to access files and directories. One of the advantages of the path module is that it automatically detects the operating system and uses the appropriate joiners.
 import fs from "node:fs";
 import path from "node:path";
-import { send } from "node:process";
 
 let testMode = false;
 if (process.argv.length > 2) {
@@ -44,12 +43,21 @@ client.commands = new Collection();
 let presenceIntervalFunc: NodeJS.Timeout;
 let currentPresenceIndex = 0;
 
+//Random defamation send interval
+let randomDefamationIntervalFunc: NodeJS.Timeout;
+
 // When the client is ready, run this code (only once).
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
 // It makes some properties non-nullable.
-client.once(Events.ClientReady, (readyClient) => {
+client.once(Events.ClientReady, async (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
   changePresence();
+  //Main hermahs server #general ID: 1191122532619792457
+  //Test server #testing ID: 1203856458379427861
+  randomDefamationIntervalFunc = await randomDefamationSend(
+    readyClient,
+    "1191122532619792457"
+  );
 });
 
 presenceIntervalFunc = setInterval(() => {
@@ -247,27 +255,20 @@ client.on("error", (error) => {
 process.on("SIGINT", async () => {
   console.log("Gracefully exiting bot...");
   clearInterval(presenceIntervalFunc);
+  clearInterval(randomDefamationIntervalFunc);
   await client.destroy();
 });
 
 process.on("SIGTERM", async () => {
   console.log("Gracefully exiting bot...");
   clearInterval(presenceIntervalFunc);
+  clearInterval(randomDefamationIntervalFunc);
   await client.destroy();
 });
 
 process.on("unhandledRejection", (reason, promise) => {
   console.error("Unhandled rejection at: ", promise, "reason:", reason);
   clearInterval(presenceIntervalFunc);
+  clearInterval(randomDefamationIntervalFunc);
   process.exit(1);
 });
-
-
-client.on("messageCreate", async (interaction) => {
-  if (interaction.content === "now") {
-    interaction.reply("Acknowledged.");
-    await sendDefamation(client, "1203856458379427861");
-  }
-});
-
-

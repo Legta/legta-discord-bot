@@ -17,10 +17,7 @@ export async function saveImages(arrayOfImgURLs: string[]) {
 }
 
 //Sends a defamation to the provided channelID
-export async function sendDefamation(
-  client: Client<boolean>,
-  channelId: string
-) {
+async function sendDefamation(client: Client<boolean>, channelId: string) {
   const channel = await client.channels.fetch(channelId);
   const attachment = await fetchDefamation();
 
@@ -53,4 +50,20 @@ export async function fetchDefamation(): Promise<AttachmentBuilder | null> {
     return attachment;
   }
   return attachment;
+}
+
+export async function randomDefamationSend(
+  client: Client<boolean>,
+  channelId: string
+): Promise<NodeJS.Timeout> {
+  const intervalFunc: NodeJS.Timeout = setInterval(async () => {
+    const randNumber: number = Math.random();
+    if (randNumber <= 0.001) {
+      console.log(`Generated number: ${randNumber}`);
+      await sendDefamation(client, channelId);
+    } else {
+      console.log(`Not sent. Generated number: ${randNumber}`);
+    }
+  }, 3600000); //1 hour
+  return intervalFunc;
 }
