@@ -1,6 +1,6 @@
-const { SlashCommandBuilder } = require('discord.js')
+import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
 const hordeApi = 'https://stablehorde.net/api/'
-const { hordeKey } = require('../../config.json')
+import { hordeKey } from '#config';
 
 const headers = {
     'apikey': hordeKey,
@@ -27,13 +27,13 @@ module.exports = {
             option.setName('number').setRequired(false).setDescription('Number of images to generate (4 max)')
         ),
 
-    async execute(interaction) {
+    async execute(interaction: ChatInputCommandInteraction) {
 
         await interaction.deferReply()
-        const prompt = interaction.options.getString('prompt').toLowerCase()
-        const numberOfImages = interaction.options.getString('number') ? interaction.options.getString('number') : 1
+        const prompt = (interaction.options.getString('prompt') as string).toLowerCase()
+        const numberOfImages: string | null = interaction.options.getString('number') ? interaction.options.getString('number') : "1"
         const selectedModel = interaction.options.getString('model')
-        const parsedBatchSize = parseInt(numberOfImages)
+        const parsedBatchSize = parseInt(numberOfImages as string)
 
         const animeParameters = {
             "prompt": `${prompt} ### ugly, bad anatomy, horrid, watermark, bad art, bad text, illegible, nsfw, naked, nude, nipple, nipples`,
@@ -79,10 +79,10 @@ module.exports = {
             body: body
         })
             .then(response => response.json())
-            .then(result => {
+            .then((result: any) => {
                 console.log(result)
                 genId = result.id
-                kudos = result.kudos
+                const kudos = result.kudos
                 interaction.followUp(`Generating! Please be patient, time can vary`)
                 return result
             })
@@ -91,7 +91,7 @@ module.exports = {
         const interval = setInterval(async () => {
             if (genId !== '' || genId !== undefined) {
                 console.log('checking ID:', hordeApi + `v2/generate/check/${genId}`)
-                const check = await fetch(hordeApi + `v2/generate/check/${genId}`).then(response => response.json()).then(result => result)
+                const check: any = await fetch(hordeApi + `v2/generate/check/${genId}`).then(response => response.json()).then(result => result)
 
                 if (check.faulted) {
                     interaction.followUp('Image could not be generated')
@@ -99,8 +99,8 @@ module.exports = {
                 }
 
                 if (check.done) {
-                    const image = await fetch(hordeApi + `v2/generate/status/${genId}`).then(response => response.json()).then(result => result)
-                    const attachments = image.generations.map(generation => ({ attachment: generation.img, name: 'generation.png' }))
+                    const image: any = await fetch(hordeApi + `v2/generate/status/${genId}`).then(response => response.json()).then(result => result)
+                    const attachments = image.generations.map((generation: any) => ({ attachment: generation.img, name: 'generation.png' }))
                     if (!hasMessageBeenRepliedTo) {
                         console.log('Checking done')
                         console.log(check)

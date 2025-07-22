@@ -1,24 +1,29 @@
 /*
  * Arguments:
- * -testing //starts the bot in test mode (meaning that it starts the slipi-test bot instead of the main one)
+ * --testing //starts the bot in test mode (meaning that it starts the slipi-test bot instead of the main one)
  */
 
 // Require the necessary discord.js classes
-const {
+import {
   Client,
   Collection,
   Events,
   GatewayIntentBits,
   ActivityType,
-} = require("discord.js");
-const { token, testingBotToken } = require("./config.json");
+  Attachment,
+  MessagePayload,
+  MessageCreateOptions,
+} from "discord.js";
+import { token, testingBotToken } from "#config";
+import { randomDefamationSend, saveImages } from "#functions";
+import { Reaction } from "./types/types";
 // Require Node.js filesystem and path properties to be able to read directories and identify files. path helps construct paths to access files and directories. One of the advantages of the path module is that it automatically detects the operating system and uses the appropriate joiners.
-const fs = require("node:fs");
-const path = require("node:path");
+import fs from "node:fs";
+import path from "node:path";
 
 let testMode = false;
 if (process.argv.length > 2) {
-  if (process.argv[2].toLowerCase() === "-testing") testMode = true;
+  if (process.argv[2].toLowerCase() === "--testing") testMode = true;
 }
 
 // Create a new client instance
@@ -35,48 +40,58 @@ const client = new Client({
 client.commands = new Collection();
 
 //Variables for status changing interval
-let presenceIntervalFunc;  
+let presenceIntervalFunc: NodeJS.Timeout;
 let currentPresenceIndex = 0;
+
+//Random defamation send interval
+let randomDefamationIntervalFunc: NodeJS.Timeout;
 
 // When the client is ready, run this code (only once).
 // The distinction between `client: Client<boolean>` and `readyClient: Client<true>` is important for TypeScript developers.
 // It makes some properties non-nullable.
-client.once(Events.ClientReady, (readyClient) => {
+client.once(Events.ClientReady, async (readyClient) => {
   console.log(`Ready! Logged in as ${readyClient.user.tag}`);
-  changePresence()
+  changePresence();
+  //Main hermahs server #general ID: 1191122532619792457
+  //Test server #testing ID: 1203856458379427861
+  randomDefamationIntervalFunc = await randomDefamationSend(
+    readyClient,
+    "1191122532619792457"
+  );
 });
 
-presenceIntervalFunc = setInterval(() => {changePresence(false)}, 900000); //15min
+presenceIntervalFunc = setInterval(() => {
+  changePresence();
+}, 900000); //15min
 
 function changePresence() {
   const names = [
-      "Dubby",
-      "Legta",
-      "Swadley",
-      "Habatwo",
-      "Rubi",
-      "Zettyns",
-      "Joy",
-      "Seikuz",
-    ];
+    "Dubby",
+    "Legta",
+    "Swadley",
+    "Habatwo",
+    "Rubi",
+    "Zettyns",
+    "Joy",
+    "Seikuz",
+  ];
 
-    const maxIndex = names.length - 1;
-    const nameToDisplay = names[currentPresenceIndex];
+  const maxIndex = names.length - 1;
+  const nameToDisplay = names[currentPresenceIndex];
 
-    client.user.setPresence({
-      activities: [
-        {
-          name: `Killing ${nameToDisplay}... /say to make me talk`,
-          type: ActivityType.Custom,
-        },
-      ],
-      status: "dnd",
-    });
+  client.user?.setPresence({
+    activities: [
+      {
+        name: `Killing ${nameToDisplay}... /say to make me talk`,
+        type: ActivityType.Custom,
+      },
+    ],
+    status: "dnd",
+  });
 
-    currentPresenceIndex++;
-    if (currentPresenceIndex > maxIndex) currentPresenceIndex = 0;
+  currentPresenceIndex++;
+  if (currentPresenceIndex > maxIndex) currentPresenceIndex = 0;
 }
-
 
 // Log in to Discord with your client's token
 client.login(testMode ? testingBotToken : token);
@@ -171,27 +186,10 @@ client.on("messageCreate", async (interaction) => {
   ) {
     //For specific humiliations channel in legtas gaming server
     try {
-      const messageAttachments = JSON.parse(
-        JSON.stringify(interaction.attachments)
-      );
-      const saveImages = async (arrayOfImgURLs) => {
-        //This function makes an API request to HermahsAPI with an array of links to download
-        const addDefamation = await fetch(
-          "https://api.hermahs.com/add_defamation",
-          {
-            method: "POST",
-            headers: {
-              "content-type": "application/json",
-            },
-            body: JSON.stringify({
-              imageURLs: arrayOfImgURLs,
-            }),
-          }
-        );
-        console.log(`Sent images to api`);
-      };
+      const messageAttachments: Attachment[] = interaction.attachments.toJSON();
+
       if (messageAttachments.length > 0) {
-        const imageURLsToPush = [];
+        const imageURLsToPush: string[] = [];
         messageAttachments.forEach((attachment) => {
           console.log(attachment.proxyURL);
           imageURLsToPush.push(attachment.proxyURL);
@@ -206,11 +204,12 @@ client.on("messageCreate", async (interaction) => {
   }
 
   if (
+    interaction.guild &&
     fs.existsSync(
       path.join(__dirname, "guild-data", interaction.guild.id, "responses.json")
     )
   ) {
-    const readData = JSON.parse(
+    const readData: Reaction[] = JSON.parse(
       fs.readFileSync(
         path.join(
           __dirname,
@@ -218,10 +217,10 @@ client.on("messageCreate", async (interaction) => {
           interaction.guild.id,
           "responses.json"
         )
-      )
+      ) as unknown as string
     );
-    const matchIndexes = [];
-    readData.forEach((el, index) => {
+    const matchIndexes: number[] = [];
+    readData.forEach((el: Reaction, index: number) => {
       if (interaction.content.toLowerCase().includes(el.message)) {
         matchIndexes.push(index);
       }
@@ -255,18 +254,21 @@ client.on("error", (error) => {
 
 process.on("SIGINT", async () => {
   console.log("Gracefully exiting bot...");
-  clearInterval(presenceIntervalFunc)
+  clearInterval(presenceIntervalFunc);
+  clearInterval(randomDefamationIntervalFunc);
   await client.destroy();
 });
 
 process.on("SIGTERM", async () => {
   console.log("Gracefully exiting bot...");
-  clearInterval(presenceIntervalFunc)
+  clearInterval(presenceIntervalFunc);
+  clearInterval(randomDefamationIntervalFunc);
   await client.destroy();
 });
 
 process.on("unhandledRejection", (reason, promise) => {
   console.error("Unhandled rejection at: ", promise, "reason:", reason);
-  clearInterval(presenceIntervalFunc)
+  clearInterval(presenceIntervalFunc);
+  clearInterval(randomDefamationIntervalFunc);
   process.exit(1);
 });
