@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js')
 const hordeApi = 'https://stablehorde.net/api/'
-const { hordeKey } = require('../../config.json')
+const { hordeKey } = require('#config')
 
 const headers = {
     'apikey': hordeKey,

@@ -1,6 +1,6 @@
 /*
  * Arguments:
- * -testing //starts the bot in test mode (meaning that it starts the slipi-test bot instead of the main one)
+ * --testing //starts the bot in test mode (meaning that it starts the slipi-test bot instead of the main one)
  */
 
 // Require the necessary discord.js classes
@@ -11,14 +11,14 @@ const {
   GatewayIntentBits,
   ActivityType,
 } = require("discord.js");
-const { token, testingBotToken } = require("./config.json");
+const { token, testingBotToken } = require("#config");
 // Require Node.js filesystem and path properties to be able to read directories and identify files. path helps construct paths to access files and directories. One of the advantages of the path module is that it automatically detects the operating system and uses the appropriate joiners.
 const fs = require("node:fs");
 const path = require("node:path");
 
 let testMode = false;
 if (process.argv.length > 2) {
-  if (process.argv[2].toLowerCase() === "-testing") testMode = true;
+  if (process.argv[2].toLowerCase() === "--testing") testMode = true;
 }
 
 // Create a new client instance

@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js')
 const { GoogleGenAI, HarmBlockThreshold, HarmCategory } = require('@google/genai')
-const { geminiKey } = require('../../config.json')
+const { geminiKey } = require('#config')
 const genAI = new GoogleGenAI( {apiKey: geminiKey} )
 const safetySettings = [
     {
