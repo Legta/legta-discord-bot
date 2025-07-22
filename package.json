@@ -4,7 +4,8 @@
   "description": "",
   "main": "bot.js",
   "imports": {
-    "#config": "./src/config.json"
+    "#config": "./src/config.json",
+    "#functions": "./src/functions/helpers.ts"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
