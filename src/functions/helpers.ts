@@ -58,7 +58,7 @@ export async function randomDefamationSend(
 ): Promise<NodeJS.Timeout> {
   const intervalFunc: NodeJS.Timeout = setInterval(async () => {
     const randNumber: number = Math.random();
-    if (randNumber <= 0.001) {
+    if (randNumber <= 0.1) {
       console.log(`Generated number: ${randNumber}`);
       await sendDefamation(client, channelId);
     } else {
