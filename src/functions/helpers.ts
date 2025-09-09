@@ -58,11 +58,11 @@ export async function randomDefamationSend(
 ): Promise<NodeJS.Timeout> {
   const intervalFunc: NodeJS.Timeout = setInterval(async () => {
     const randNumber: number = Math.random();
-    if (randNumber <= 0.1) {
-      console.log(`Generated number: ${randNumber}`);
+    if (randNumber <= 0.05) {
+      console.log(`Sent defamation. Generated number: ${randNumber}`);
       await sendDefamation(client, channelId);
     } else {
-      console.log(`Not sent. Generated number: ${randNumber}`);
+      console.log(`Did not send defamation. Generated number: ${randNumber}`);
     }
   }, 3600000/2); //1 hour divided by half so half an hour, divided it cause i didnt wanna do the mental math
   return intervalFunc;
