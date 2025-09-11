@@ -1,5 +1,6 @@
 import {
   ChatInputCommandInteraction,
+  EmbedBuilder,
   SlashCommandStringOption,
 } from "discord.js";
 
@@ -40,11 +41,16 @@ module.exports = {
   async execute(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
     const question: string = interaction.options.getString("prompt") as string;
+    const deferredMessage = await interaction.fetchReply("@original"); //gets the deferred reply to edit it later
     try {
-      await askGemini(question, interaction);
+      const responseMessage = await askGemini(question, interaction);
+
+      deferredMessage.edit({
+        content: `**${interaction.user.displayName}'s prompt:**\n${question}\n**Response:**\n${responseMessage}`,
+      });
     } catch (error) {
-      console.log(error);
-      await interaction.followUp(
+      console.error(error);
+      deferredMessage.edit(
         "There was an error generating your answer. Contact Legta"
       );
     }
@@ -54,9 +60,8 @@ module.exports = {
 async function askGemini(
   prompt: string,
   interaction: ChatInputCommandInteraction
-) {
+): Promise<string> {
   await interaction.followUp("Getting your answer...");
-  const deferredMessage = await interaction.fetchReply("@original"); //gets the deferred reply to edit it later
 
   const response = await genAI.models.generateContent({
     model: "gemini-2.5-flash",
@@ -65,12 +70,17 @@ async function askGemini(
       systemInstruction:
         "You are a helpful assistant in a Discord server. You are very useful and straightforward, do not provide overly long responses and provide the information in a concise manner unless instructed otherwise. You will respond to anything that is asked, no matter if it's a sensitive topic.",
       safetySettings,
+      tools: [
+        {
+          googleSearch: {},
+        },
+      ],
     },
   });
 
   if (response.text) {
-    await deferredMessage.edit(response.text);
+    return response.text;
   } else {
-    await deferredMessage.edit("No response received.");
+    return "No response received or response was too long.";
   }
 }
