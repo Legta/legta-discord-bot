@@ -45,12 +45,20 @@ module.exports = {
     try {
       const responseMessage = await askGemini(question, interaction);
 
-      deferredMessage.edit({
+      if (responseMessage.length >= 1990) {
+        const truncatedResponse: string = responseMessage.slice(0, 1800)
+        console.log("Gemini's response was too long. Truncating.")
+        return await deferredMessage.edit({
+          content: `**${interaction.user.displayName}'s prompt:**\n${question}\n**Response:**\n${truncatedResponse}\n\n**Message cut off for being too long.**`
+        })
+      }
+
+      await deferredMessage.edit({
         content: `**${interaction.user.displayName}'s prompt:**\n${question}\n**Response:**\n${responseMessage}`,
       });
     } catch (error) {
       console.error(error);
-      deferredMessage.edit(
+      await deferredMessage.edit(
         "There was an error generating your answer. Contact Legta"
       );
     }
