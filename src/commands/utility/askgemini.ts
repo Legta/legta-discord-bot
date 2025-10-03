@@ -46,11 +46,11 @@ module.exports = {
       const responseMessage = await askGemini(question, interaction);
 
       if (responseMessage.length >= 1990) {
-        const truncatedResponse: string = responseMessage.slice(0, 1800)
-        console.log("Gemini's response was too long. Truncating.")
+        const truncatedResponse: string = responseMessage.slice(0, 1800);
+        console.log("Gemini's response was too long. Truncating.");
         return await deferredMessage.edit({
-          content: `**${interaction.user.displayName}'s prompt:**\n${question}\n**Response:**\n${truncatedResponse}\n\n**Message cut off for being too long.**`
-        })
+          content: `**${interaction.user.displayName}'s prompt:**\n${question}\n**Response:**\n${truncatedResponse}\n\n**Message cut off for being too long.**`,
+        });
       }
 
       await deferredMessage.edit({
@@ -72,7 +72,7 @@ async function askGemini(
   await interaction.followUp("Getting your answer...");
 
   const response = await genAI.models.generateContent({
-    model: "gemini-2.5-flash",
+    model: "gemini-flash-latest",
     contents: prompt,
     config: {
       systemInstruction:
