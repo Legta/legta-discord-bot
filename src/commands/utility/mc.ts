@@ -1,4 +1,6 @@
-import { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder, ChatInputCommandInteraction } from "discord.js";
+import type { AttachmentBuilder, ChatInputCommandInteraction } from "discord.js";
+
+const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder: AttachmentBuilderClass } = require("discord.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -21,7 +23,7 @@ module.exports = {
           ? response.icon.split(",")[1]
           : response.icon;
         const icon = Buffer.from(base64Icon, "base64");
-        file = new AttachmentBuilder(icon, { name: "icon.png" });
+        file = new AttachmentBuilderClass(icon, { name: "icon.png" });
       }
 
       const reply = new EmbedBuilder()

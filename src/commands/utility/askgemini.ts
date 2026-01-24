@@ -1,12 +1,12 @@
-import {
+import type {
   ChatInputCommandInteraction,
   EmbedBuilder,
   SlashCommandStringOption,
 } from "discord.js";
 
-import { SlashCommandBuilder } from "discord.js";
-import { GoogleGenAI, HarmBlockThreshold, HarmCategory } from "@google/genai";
-import { geminiKey } from "#config";
+const { SlashCommandBuilder } = require("discord.js");
+const { GoogleGenAI, HarmBlockThreshold, HarmCategory } = require("@google/genai");
+const { geminiKey } = require("#config");
 const genAI = new GoogleGenAI({ apiKey: geminiKey });
 const safetySettings = [
   {

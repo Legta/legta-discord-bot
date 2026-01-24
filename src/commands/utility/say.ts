@@ -1,10 +1,12 @@
-import { SlashCommandBuilder, MessageFlags, ChatInputCommandInteraction, TextChannel } from "discord.js";
+import type { ChatInputCommandInteraction, TextChannel, SlashCommandStringOption } from "discord.js";
+
+const { SlashCommandBuilder, MessageFlags } = require("discord.js");
 
 module.exports = {
     data: new SlashCommandBuilder()
     .setName("say")
     .setDescription("Talk as the bot.")
-    .addStringOption((option) => option.setName('say').setRequired(true).setDescription('What do you want to say?')),
+    .addStringOption((option: SlashCommandStringOption) => option.setName('say').setRequired(true).setDescription('What do you want to say?')),
 
     async execute (interaction: ChatInputCommandInteraction) {
         const userMessage = interaction.options.getString("say")

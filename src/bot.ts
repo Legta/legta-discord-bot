@@ -11,8 +11,6 @@ import {
   GatewayIntentBits,
   ActivityType,
   Attachment,
-  MessagePayload,
-  MessageCreateOptions,
 } from "discord.js";
 import { token, testingBotToken } from "#config";
 import { randomDefamationSend, saveImages } from "#functions";
@@ -56,7 +54,7 @@ client.once(Events.ClientReady, async (readyClient) => {
   //Test server #testing ID: 1203856458379427861
   randomDefamationIntervalFunc = await randomDefamationSend(
     readyClient,
-    "1191122532619792457"
+    "1191122532619792457",
   );
 });
 
@@ -112,7 +110,7 @@ for (const folder of commandFolders) {
       client.commands.set(command.data.name, command);
     } else {
       console.log(
-        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`
+        `[WARNING] The command at ${filePath} is missing a required "data" or "execute" property.`,
       );
     }
   }
@@ -148,7 +146,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     if (!command) {
       console.error(
-        `No command matching ${interaction.commandName} was found.`
+        `No command matching ${interaction.commandName} was found.`,
       );
       return;
     }
@@ -206,7 +204,12 @@ client.on("messageCreate", async (interaction) => {
   if (
     interaction.guild &&
     fs.existsSync(
-      path.join(__dirname, "guild-data", interaction.guild.id, "responses.json")
+      path.join(
+        __dirname,
+        "guild-data",
+        interaction.guild.id,
+        "responses.json",
+      ),
     )
   ) {
     const readData: Reaction[] = JSON.parse(
@@ -215,9 +218,9 @@ client.on("messageCreate", async (interaction) => {
           __dirname,
           "guild-data",
           interaction.guild.id,
-          "responses.json"
-        )
-      ) as unknown as string
+          "responses.json",
+        ),
+      ) as unknown as string,
     );
     const matchIndexes: number[] = [];
     readData.forEach((el: Reaction, index: number) => {
@@ -231,7 +234,7 @@ client.on("messageCreate", async (interaction) => {
         console.log(
           `Reacted with ${readData[matchIndexes[i]].response} to "${
             interaction.content
-          }" by ${interaction.author.globalName}`
+          }" by ${interaction.author.globalName}`,
         );
       } else if (readData[matchIndexes[i]].type === "text-reply") {
         await interaction.reply({
@@ -241,7 +244,7 @@ client.on("messageCreate", async (interaction) => {
         console.log(
           `Replied with ${readData[matchIndexes[i]].response} to "${
             interaction.content
-          }" by ${interaction.author.globalName}`
+          }" by ${interaction.author.globalName}`,
         );
       }
     }

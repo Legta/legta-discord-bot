@@ -1,6 +1,7 @@
-import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
+import type { ChatInputCommandInteraction, SlashCommandStringOption } from 'discord.js';
+const { SlashCommandBuilder } = require('discord.js');
 const hordeApi = 'https://stablehorde.net/api/'
-import { hordeKey } from '#config';
+const { hordeKey } = require('#config');
 
 const headers = {
     'apikey': hordeKey,
@@ -11,10 +12,10 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('generate')
         .setDescription('Generate an AI image')
-        .addStringOption((option) =>
+        .addStringOption((option: SlashCommandStringOption) =>
             option.setName('prompt').setRequired(true).setDescription('Prompt to generate!')
         )
-        .addStringOption((option) => option
+        .addStringOption((option: SlashCommandStringOption) => option
             .setName('model')
             .setDescription('Choose which model to use for generation')
             .setRequired(true)
@@ -23,7 +24,7 @@ module.exports = {
                 { name: "Anime", value: "anime"}
             )
         )
-        .addStringOption((option) =>
+        .addStringOption((option: SlashCommandStringOption) =>
             option.setName('number').setRequired(false).setDescription('Number of images to generate (4 max)')
         ),
 

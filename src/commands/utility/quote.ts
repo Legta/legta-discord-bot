@@ -1,7 +1,8 @@
-import { ContextMenuCommandBuilder, ApplicationCommandType, AttachmentBuilder, MessageContextMenuCommandInteraction, TextChannel } from 'discord.js';
-import { Jimp, loadFont, HorizontalAlign, VerticalAlign } from 'jimp';
+import type { AttachmentBuilder, MessageContextMenuCommandInteraction, TextChannel } from 'discord.js';
+const { ContextMenuCommandBuilder, ApplicationCommandType, AttachmentBuilder: AttachmentBuilderClass } = require('discord.js');
+const { Jimp, loadFont, HorizontalAlign, VerticalAlign } = require('jimp');
 const { SANS_32_WHITE } = require("jimp/fonts");
-import path from 'path';
+const path = require('path');
 
 const canvasSize = {
     width: 800,
@@ -49,12 +50,12 @@ module.exports = {
                 canvas.composite(avatarImage)
                 canvas.composite(backgroundPng)
                 let resultCoords = {x: 0, y: 0}; // Creating variable for results of end of text after printing the quote, to get the position of it and use it to offset the name of the user a little bit.
-                canvas.print({font, x: textTransforms.x - 65, y: textTransforms.y - textTransforms.y, maxWidth: 350, maxHeight: 370, text: {text: `"${messageText}"`, alignmentX: HorizontalAlign.CENTER, alignmentY: VerticalAlign.MIDDLE}, cb: (results) => resultCoords = results})
+                canvas.print({font, x: textTransforms.x - 65, y: textTransforms.y - textTransforms.y, maxWidth: 350, maxHeight: 370, text: {text: `"${messageText}"`, alignmentX: HorizontalAlign.CENTER, alignmentY: VerticalAlign.MIDDLE}, cb: (results: any) => resultCoords = results})
                 /* Line 52: 412 is textTransforms.x - 65, 65 is the offset I gave it by trial and error on line 50, this makes the username centered accounting for the offsets*/
                 canvas.print({font: italicFont, x: textTransforms.x + 65, y: resultCoords.y + 10, text: {text: `-${interaction.targetMessage.author.displayName}`}})
     
                 const img = await canvas.getBuffer("image/png"); //creates a buffer that is readable by the attachment builder
-                const imageResponse = new AttachmentBuilder(img).setName("hermahs_quote.png");
+                const imageResponse = new AttachmentBuilderClass(img).setName("hermahs_quote.png");
         
                 
                 await deferred.delete();

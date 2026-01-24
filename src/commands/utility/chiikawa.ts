@@ -1,4 +1,6 @@
-import { SlashCommandBuilder, AttachmentBuilder, ChatInputCommandInteraction, TextChannel } from 'discord.js';
+import type { ChatInputCommandInteraction, TextChannel } from 'discord.js';
+
+const { SlashCommandBuilder, AttachmentBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder().setName('chiikawa').setDescription('Sends a random Chiikawa episode!'),

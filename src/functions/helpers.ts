@@ -37,7 +37,15 @@ export async function fetchDefamation(): Promise<AttachmentBuilder | null> {
   const responseType = response.headers.get("content-type");
   let attachment: AttachmentBuilder | null = null;
 
-  if (responseType === "image/png" || responseType === "image/jpeg") {
+  const validResponseTypes: string[] = [
+    "image/png",
+    "image/jpeg",
+    "video/mpeg",
+    "video/mp4",
+    "video/webm"
+  ]
+
+  if (responseType && validResponseTypes.find( (value) => value === responseType ) !== undefined) {
     try {
       const buffer = Buffer.from(await response.arrayBuffer());
       attachment = new AttachmentBuilder(buffer).setName(
