@@ -187,6 +187,7 @@ client.on("messageCreate", async (interaction) => {
       const messageAttachments: Attachment[] = interaction.attachments.toJSON();
 
       if (messageAttachments.length > 0) {
+        console.log("new humiliation detected.")
         const imageURLsToPush: string[] = [];
         messageAttachments.forEach((attachment) => {
           console.log(attachment.proxyURL);

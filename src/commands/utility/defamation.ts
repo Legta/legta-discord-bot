@@ -1,24 +1,37 @@
-const { fetchDefamation } = require("#functions");
+import {
+  AttachmentBuilder,
+  ChatInputCommandInteraction,
+  SlashCommandBuilder,
+  TextChannel,
+} from "discord.js";
 
-import type { AttachmentBuilder, ChatInputCommandInteraction, TextChannel } from "discord.js";
-
-const { AttachmentBuilder: AttachmentBuilderClass, SlashCommandBuilder } = require("discord.js");
+import { fetchDefamation } from "#functions";
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("defamation")
-    .setDescription("Shows a random hermahs defamation"),
+    .setDescription("Shows a random hermahs defamation")
+    .addIntegerOption((option) =>
+      option
+        .setName("number")
+        .setDescription("Specify the number of the defamation you want to see")
+        .setRequired(false),
+    ),
   async execute(interaction: ChatInputCommandInteraction) {
     await interaction.deferReply();
     await interaction.followUp("Defamating rn...");
-    const deferredMessage = await interaction.fetchReply("@original"); //gets the deferred reply to delete it later
-    const attachment: AttachmentBuilder | null = await fetchDefamation();
+    const deferredMessage = await interaction.fetchReply("@original"); //gets the deferred reply to edit it later
+    const number = interaction.options.getInteger("number");
+    const { attachment, number: defNumber } = await fetchDefamation(number ? number : -1);
     if (attachment) {
-      await (interaction.channel as TextChannel).send({
-        content: "",
+      await deferredMessage.edit({
+        content: defNumber !== null ? `Defamation #${defNumber}` : "Defamation",
         files: [attachment],
-      }); //sends the image to the channel without replying
+      });
+    } else {
+      await deferredMessage.edit({
+        content: "Failed to fetch defamation.",
+      });
     }
-    await deferredMessage.delete();
   },
 };
