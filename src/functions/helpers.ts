@@ -19,15 +19,16 @@ export async function saveImages(arrayOfImgURLs: string[]) {
 //Sends a defamation to the provided channelID
 async function sendDefamation(client: Client<boolean>, channelId: string) {
   const channel = await client.channels.fetch(channelId);
-  const { attachment } = await fetchDefamation();
+  const { attachment, number } = await fetchDefamation();
 
   if (channel?.isTextBased() && attachment) {
-    //Alternative: if (channel instanceof TextChannel)
     const messageOptions: MessageCreateOptions = {
-      content: "cuca",
+      content: `Defamation #${number}`,
       files: [attachment],
     };
     await (channel as TextChannel).send(messageOptions);
+  } else {
+    console.log("Tried to send automated defamation but failed.");
   }
 }
 
@@ -40,7 +41,9 @@ export async function fetchDefamation(
   );
   const responseType = response.headers.get("content-type");
   let attachment: AttachmentBuilder | null = null;
-  let defNumber: number = parseInt(response.headers.get("Defamation-Number") as string);
+  let defNumber: number = parseInt(
+    response.headers.get("Defamation-Number") as string,
+  );
 
   const validResponseTypes: string[] = [
     "image/png",
