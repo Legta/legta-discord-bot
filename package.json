@@ -2,7 +2,7 @@
   "name": "discord-bot",
   "version": "1.2.0",
   "description": "",
-  "main": "bot.js",
+  "main": "build/bot.js",
   "imports": {
     "#config": "./src/config.json",
     "#functions": "./src/functions/helpers.ts"
