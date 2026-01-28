@@ -85,6 +85,6 @@ export async function randomDefamationSend(
     } else {
       console.log(`Did not send defamation. Generated number: ${randNumber}`);
     }
-  }, 5000/*3600000 / 2*/); //1 hour divided by half so half an hour, divided it cause i didnt wanna do the mental math
+  }, 3600000 / 2); //1 hour divided by half so half an hour, divided it cause i didnt wanna do the mental math
   return intervalFunc;
 }
