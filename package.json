@@ -11,8 +11,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "npx nodemon bot.js",
     "build": "tsc",
-    "bot": "node build/bot.js",
-    "testbot": "node build/bot.js --testing"
+    "bot": "bun build/bot.js",
+    "testbot": "bun build/bot.js --testing"
   },
   "keywords": [],
   "author": "",

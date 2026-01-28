@@ -54,7 +54,7 @@ client.once(Events.ClientReady, async (readyClient) => {
   //Test server #testing ID: 1203856458379427861
   randomDefamationIntervalFunc = await randomDefamationSend(
     readyClient,
-    "1191122532619792457",
+    "1203856458379427861",
   );
 });
 

@@ -21,7 +21,7 @@ async function sendDefamation(client: Client<boolean>, channelId: string) {
   const channel = await client.channels.fetch(channelId);
   const { attachment, number } = await fetchDefamation();
 
-  if (channel?.isTextBased() && attachment) {
+  if (channel?.isTextBased() && attachment?.attachment) {
     const messageOptions: MessageCreateOptions = {
       content: `Defamation #${number}`,
       files: [attachment],
@@ -34,7 +34,7 @@ async function sendDefamation(client: Client<boolean>, channelId: string) {
 
 //Fetches a defamation image from HermahsAPI and returns an AttachmentBuilder object and the number
 export async function fetchDefamation(
-  number?: number,
+  number: number = -1,
 ): Promise<{ attachment: AttachmentBuilder | null; number: number }> {
   const response = await fetch(
     `https://api.hermahs.com/defamation${number !== -1 ? `?file=${number}` : ""}`,
@@ -79,12 +79,12 @@ export async function randomDefamationSend(
 ): Promise<NodeJS.Timeout> {
   const intervalFunc: NodeJS.Timeout = setInterval(async () => {
     const randNumber: number = Math.random();
-    if (randNumber <= 0.05) {
+    if (randNumber <= 0.4) {
       console.log(`Sent defamation. Generated number: ${randNumber}`);
       await sendDefamation(client, channelId);
     } else {
       console.log(`Did not send defamation. Generated number: ${randNumber}`);
     }
-  }, 3600000 / 2); //1 hour divided by half so half an hour, divided it cause i didnt wanna do the mental math
+  }, 5000/*3600000 / 2*/); //1 hour divided by half so half an hour, divided it cause i didnt wanna do the mental math
   return intervalFunc;
 }
