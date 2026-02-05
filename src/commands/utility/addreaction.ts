@@ -63,7 +63,7 @@ module.exports = {
 
 
 function createJSON(interInfo: ChatInputCommandInteraction, data = '') { //creates the JSON file if it does not exist already. interInfo stands for "interaction Info" as in the interaction data from the Discord generated interaction.
-    const folderPath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild?.id);
+    const folderPath = path.join(__dirname, '..', '..', "..", 'guild-data', interInfo.guild?.id);
     const pathWithJSON = path.join(folderPath, 'responses.json');
 
     if (!checkIfJSONExists(interInfo)) {
@@ -79,14 +79,14 @@ function createJSON(interInfo: ChatInputCommandInteraction, data = '') { //creat
 }
 
 function readJSON(interInfo: ChatInputCommandInteraction) {
-    const folderPath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild?.id);
+    const folderPath = path.join(__dirname, '..', '..', "..", 'guild-data', interInfo.guild?.id);
     const pathWithJSON = path.join(folderPath, 'responses.json');
     const jsonData = JSON.parse(fs.readFileSync(pathWithJSON));
     return jsonData;
 }
 
 function writeJSON(interInfo: ChatInputCommandInteraction, data: any) {
-    const folderPath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild?.id); //Sets the folder path, using the guild ID as the name of the folder where the file will be saved
+    const folderPath = path.join(__dirname, '..', '..', "..", 'guild-data', interInfo.guild?.id); //Sets the folder path, using the guild ID as the name of the folder where the file will be saved
     const pathWithJSON = path.join(folderPath, 'responses.json'); //just the full folder path with the name of the file added
     try {
         const jsonData = JSON.parse(fs.readFileSync(pathWithJSON)); //parses the array previously created
@@ -104,7 +104,7 @@ function writeJSON(interInfo: ChatInputCommandInteraction, data: any) {
 }
 
 function checkIfJSONExists(interInfo: ChatInputCommandInteraction) { //Will check if the file exists and create the directory if that doesn't exist either
-    const JSONpath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild?.id);
+    const JSONpath = path.join(__dirname, '..', '..', "..", 'guild-data', interInfo.guild?.id);
     const JSONfilename = `responses.json`;
     if (fs.existsSync(JSONpath)) {
         return fs.existsSync(path.join(JSONpath, JSONfilename));

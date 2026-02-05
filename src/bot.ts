@@ -187,7 +187,7 @@ client.on("messageCreate", async (interaction) => {
       const messageAttachments: Attachment[] = interaction.attachments.toJSON();
 
       if (messageAttachments.length > 0) {
-        console.log("new humiliation detected.")
+        console.log("new humiliation detected.");
         const imageURLsToPush: string[] = [];
         messageAttachments.forEach((attachment) => {
           console.log(attachment.proxyURL);
@@ -202,26 +202,19 @@ client.on("messageCreate", async (interaction) => {
     }
   }
 
-  if (
-    interaction.guild &&
-    fs.existsSync(
-      path.join(
-        __dirname,
-        "guild-data",
-        interaction.guild.id,
-        "responses.json",
-      ),
-    )
-  ) {
+  if (!interaction.guild) return;
+
+  const guildDataPath: string = path.join(
+    __dirname,
+    "..",
+    "guild-data",
+    interaction.guild.id,
+    "responses.json",
+  );
+
+  if (interaction.guild && fs.existsSync(guildDataPath)) {
     const readData: Reaction[] = JSON.parse(
-      fs.readFileSync(
-        path.join(
-          __dirname,
-          "guild-data",
-          interaction.guild.id,
-          "responses.json",
-        ),
-      ) as unknown as string,
+      fs.readFileSync(guildDataPath) as unknown as string,
     );
     const matchIndexes: number[] = [];
     readData.forEach((el: Reaction, index: number) => {

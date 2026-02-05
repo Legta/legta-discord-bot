@@ -417,14 +417,14 @@ module.exports = {
 
 
 function readJSON(interInfo) {
-    const folderPath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild.id);
+    const folderPath = path.join(__dirname, '..', '..', '..', 'guild-data', interInfo.guild.id);
     const pathWithJSON = path.join(folderPath, 'responses.json');
     const jsonData = JSON.parse(fs.readFileSync(pathWithJSON));
     return jsonData;
 }
 
 function checkIfJSONExists(interInfo) { //Will check if the file exists and create the directory if that doesn't exist either
-    const JSONpath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild.id);
+    const JSONpath = path.join(__dirname, '..', '..', "..", 'guild-data', interInfo.guild.id);
     const JSONfilename = `responses.json`;
     // console.log(`JSONpath: ${JSONpath}`);
     if (fs.existsSync(JSONpath)) {
@@ -438,7 +438,7 @@ function checkIfJSONExists(interInfo) { //Will check if the file exists and crea
 }
 
 function deleteFromJSON(interInfo, indexPassed, newArray) { //Removes an element from the array in the JSON with the specified index
-    const filePath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild.id, 'responses.json'); //Sets the folder path, using the guild ID as the name of the folder where the file will be saved
+    const filePath = path.join(__dirname, '..', '..', "..", 'guild-data', interInfo.guild.id, 'responses.json'); //Sets the folder path, using the guild ID as the name of the folder where the file will be saved
     try {
         const jsonData = JSON.parse(fs.readFileSync(filePath)); //parses the array previously created
         if (Array.isArray(jsonData)) { //if the data in the file is an array, it pushes the data to it
@@ -456,7 +456,7 @@ function deleteFromJSON(interInfo, indexPassed, newArray) { //Removes an element
 }
 
 function replaceElementJSON(interInfo, data, indexPassed, newArray) {
-    const folderPath = path.join(__dirname, '..', '..', 'guild-data', interInfo.guild.id); //Sets the folder path, using the guild ID as the name of the folder where the file will be saved
+    const folderPath = path.join(__dirname, '..', '..', "..", 'guild-data', interInfo.guild.id); //Sets the folder path, using the guild ID as the name of the folder where the file will be saved
     const pathWithJSON = path.join(folderPath, 'responses.json'); //just the full folder path with the name of the file added
     try {
         const jsonData = JSON.parse(fs.readFileSync(pathWithJSON)); //parses the array previously created
